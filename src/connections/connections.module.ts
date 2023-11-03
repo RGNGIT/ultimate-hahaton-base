@@ -9,5 +9,6 @@ import { UserService } from 'src/user/user.service';
   imports: [SequelizeModule],
   controllers: [ConnectionsController],
   providers: [ConnectionsService, ...connectionProvider],
+  exports: [ConnectionsService]
 })
 export class ConnectionsModule {}

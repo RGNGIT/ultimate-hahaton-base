@@ -1,8 +1,8 @@
 import { AppService } from "./app.service";
-import { InjectBot, Start, Update, Action, Hears, On, Message } from "nestjs-telegraf";
+import { InjectBot, Start, Update, Action, Hears, On, Message, Ctx, Command } from "nestjs-telegraf";
 import { Telegraf  } from "telegraf";
 import { actionButtons, mainButton } from "./bot.buttons";
-import { Context } from "./context.interface";
+import { Context, Scenes } from 'telegraf';
 import { UserService } from "src/user/user.service";
 import { ConnectionsService } from "src/connections/connections.service";
 
@@ -11,6 +11,7 @@ export class BotUpdate{
     constructor(@InjectBot() private readonly bot: Telegraf<Context>, 
         private readonly appService: AppService,
         private readonly usersService: UserService,
+        private readonly connectionsService: ConnectionsService,
     ){}
 
     @Start()
@@ -31,10 +32,9 @@ export class BotUpdate{
     }
 
     @Action('createConn')
-    async getAll(ctx: Context){
-
-        //const newConn = await this.connectionService.create()
-        await ctx.reply('createConn');
+    async getAll(@Ctx() ctx: Scenes.SceneContext){
+        await ctx.reply('У вас ещё нет подключений. Введите логин для создания подключения.');
+        // ctx.scene.enter('createConnectionScene');
     }
 
     @Hears('Прослушка')
@@ -42,9 +42,18 @@ export class BotUpdate{
         await ctx.reply('edit');
     }
 
-    @On('text')
-    async text(@Message('text') text: string, ctx: Context){
-        await ctx.reply(text);
-        // await ctx.reply('Это текст');
-    }
+    // @On('text')
+    // async onText(@Message('text') text: string, @Ctx() ctx: Scenes.SceneContext) {
+    //   if (ctx.scene.current?.id === 'createConnectionScene') {
+    //     const telegram_id = String(ctx.from.id);
+    //     const user = await this.usersService.findOne(telegram_id);
+    //     const connectionString = text;
+    //     await this.connectionsService.create({user_id: user.id, connectionString});
+    //     await ctx.reply('Подключение создано!');
+    //     ctx.scene.leave();
+    //   }
+    // }
+
+
+    
 }

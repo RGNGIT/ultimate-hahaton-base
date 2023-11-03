@@ -8,7 +8,7 @@ import constants from 'src/common/constants';
 export class ConnectionsService {
   constructor(
     @Inject(constants.CONNECTIONS_REPOSITOTY)
-    private connectionssRepository: typeof Connection) { }
+    private connectionsRepository: typeof Connection) { }
 
   create(createConnectionDto: CreateConnectionDto) {
     return 'This action adds a new connection';

@@ -34,7 +34,7 @@ export class UserService {
         return `This action returns all connections`;
       }
     
-      async findOne(telegram_id: number) {
+      async findOne(telegram_id: string) {
         return await this.usersRepository.findOne({where: {telegram_id}});
       }
     
