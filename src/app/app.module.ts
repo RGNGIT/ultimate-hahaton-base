@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { TelegrafModule } from 'nestjs-telegraf';
 import * as LocalSession from 'telegraf-session-local';
 import { botToken } from 'src/config';
-import { AppUpdate } from './app.update';
+import { BotUpdate } from './bot.update';
 
 
 const sessions = new LocalSession({database: 'session_db.json'})
@@ -16,6 +16,6 @@ const sessions = new LocalSession({database: 'session_db.json'})
       middlewares: [sessions.middleware()]
     })
   ],
-  providers: [AppService, AppUpdate],
+  providers: [AppService, BotUpdate],
 })
 export class AppModule {}

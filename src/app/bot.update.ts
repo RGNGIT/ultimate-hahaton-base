@@ -1,17 +1,17 @@
 import { AppService } from "./app.service";
 import { InjectBot, Start, Update, Action, Hears, On, Message } from "nestjs-telegraf";
 import { Telegraf  } from "telegraf";
-import { actionButtons } from "./app.buttons";
+import { actionButtons, mainButton } from "./bot.buttons";
 import { Context } from "./context.interface";
 
 @Update()
-export class AppUpdate{
+export class BotUpdate{
     constructor(@InjectBot() private readonly bot: Telegraf<Context>, private readonly appService: AppService){}
 
     @Start()
     async startCommand(ctx: Context){
         await ctx.reply('Приветики!');
-        await ctx.reply('Шо делаем?', actionButtons());
+        await ctx.reply('Шо делаем?', mainButton());
     }
 
     @Action('list')
