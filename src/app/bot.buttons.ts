@@ -17,6 +17,9 @@ export function mainButton(){
     return Markup.keyboard(
         [
             Markup.button.webApp('Начать работу',  'https://stas-monitor-bot.netlify.app/'),
-        ]
+        ],
+        {
+            
+        }
     )
 }

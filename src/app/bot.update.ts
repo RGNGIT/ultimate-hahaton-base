@@ -10,7 +10,7 @@ export class BotUpdate{
 
     @Start()
     async startCommand(ctx: Context){
-        await ctx.reply('Приветики!');
+        await ctx.reply('Приветики!', actionButtons());
         await ctx.reply('Шо делаем?', mainButton());
     }
 
