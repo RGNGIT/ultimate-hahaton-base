@@ -1,17 +1,23 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { Injectable, ForbiddenException, Inject } from '@nestjs/common';
 import { Cron, CronExpression, Interval } from '@nestjs/schedule';
 import { Dialect } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { BotService } from 'src/app/bot.service';
 import { ConnectionsService } from 'src/connections/connections.service';
 import { Connection } from 'src/connections/entities/connection.entity';
+import { MonitoringService } from 'src/monitoring/monitoring.service';
+import { Status } from './entities/status.entity';
+import constants from "../common/constants";
 
 @Injectable()
 export class CronjobsService {
 
   constructor(private readonly botService: BotService,
-    private readonly connectionsService: ConnectionsService
-  ) { }
+    private readonly connectionsService: ConnectionsService,
+    private readonly monitoringService: MonitoringService,
+    @Inject(constants.STATUS_REPOSITORY)
+    private statusRepository: typeof Status
+    ) { }
 
   // @Cron( '0 * * * * *' )
   // openForBusiness()  {
@@ -23,6 +29,19 @@ export class CronjobsService {
   // takingOrders() {
   //     console.log("Delicious cakes is still taking orders")
   // }
+  // @Interval(10000)
+  async monitorChronos() {
+    const connections = await this.connectionsService.findAll();
+
+    for (const connection of connections) {
+      const splitCreds = connection.connectionString.split(';');
+      const databases = await this.monitoringService.getDatabasesReport(splitCreds[0], splitCreds[1], splitCreds[2], splitCreds[3]);
+
+      for (const db of databases) {
+        await this.statusRepository.create({oid: db.oid, sessions: db.sessions, idle_in_transaction: db?.idle_in_transaction_time, date: Date.now()});
+      }
+    }
+  }
 
   @Interval(15000000)
   async monitorDatabases() {
