@@ -25,8 +25,11 @@ const {
   JWT_ACCESS_TIME,
   JWT_REFRESH_TIME,
   JWT_RESET_TIME,
+  TELEGRAM_BOT_TOKEN,
   PORT
 } = process.env;
+
+export const botToken = TELEGRAM_BOT_TOKEN;
 
 export const sequelizeConfig = {
   dialect: SQ_DIALECT as Dialect,
