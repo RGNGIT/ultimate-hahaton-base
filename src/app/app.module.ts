@@ -10,6 +10,9 @@ import { ConnectionsModule } from 'src/connections/connections.module';
 import { RouterModule } from '@nestjs/core';
 import path from 'src/common/path';
 import { MonitoringModule } from 'src/monitoring/monitoring.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { CronjobsModule } from 'src/cronjobs/cronjobs.module';
+import { BotService } from './bot.service';
 
 
 const sessions = new LocalSession({ database: 'session_db.json' })
@@ -20,6 +23,7 @@ const sessions = new LocalSession({ database: 'session_db.json' })
     UserModule,
     ConnectionsModule,
     MonitoringModule,
+    CronjobsModule,
     RouterModule.register([{
       path: path.API_REQUEST,
       children: [{
@@ -40,8 +44,8 @@ const sessions = new LocalSession({ database: 'session_db.json' })
       token: botToken,
       middlewares: [sessions.middleware()]
     }),
-
+    ScheduleModule.forRoot(),
   ],
-  providers: [AppService, BotUpdate],
+  providers: [AppService, BotUpdate, BotService],
 })
 export class AppModule { }

@@ -13,8 +13,11 @@ export class Connection extends Model<Connection, ConnectionCreationAttrs>{
     @ApiProperty({example: '1', description: 'Уникальный идентификатор'})
     @Column({type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true})
     id: number;
-
+    
     @Column({type: DataType.STRING} )
+    name: string;
+
+    @Column({type: DataType.STRING, allowNull: false} )
     connectionString: string;
 
     @ForeignKey(()=>User)

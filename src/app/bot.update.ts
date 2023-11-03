@@ -21,7 +21,10 @@ export class BotUpdate{
         // await ctx.reply('Вас приветствует наш сервис!', actionButtons());
         // await ctx.reply('Шо делаем?', mainButton());
         const telegram_id = String(ctx.from.id);
-        const user = await this.usersService.create({telegram_id});
+        const telegram_chat_id = String(ctx.chat.id);
+
+        const user = await this.usersService.create({telegram_id, telegram_chat_id});
+        
         ctx.reply('Вас приветствует наш сервис!');
         const userConnections = await this.usersService.findAllUserConnections(user.id);
 

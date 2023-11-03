@@ -3,6 +3,7 @@ import { CreateConnectionDto } from './dto/create-connection.dto';
 import { UpdateConnectionDto } from './dto/update-connection.dto';
 import { Connection } from './entities/connection.entity';
 import constants from 'src/common/constants';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class ConnectionsService {
@@ -15,9 +16,10 @@ export class ConnectionsService {
     return conn;
   }
 
-  // findAll() {
-  //   return `This action returns all connections`;
-  // }
+  async findAll() {
+    const connections = this.connectionsRepository.findAll({include: {model: User}});
+    return connections;
+  }
 
   // findOne(id: number) {
   //   return `This action returns a #${id} connection`;
