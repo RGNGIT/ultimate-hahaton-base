@@ -2,7 +2,7 @@ import { AppService } from "./app.service";
 import { InjectBot, Start, Update, Action, Hears, On, Message, Ctx, Command } from "nestjs-telegraf";
 import { Telegraf  } from "telegraf";
 import { actionButtons, mainButton } from "./bot.buttons";
-import { Context, Scenes } from 'telegraf';
+import { Context, } from 'telegraf';
 import { UserService } from "src/user/user.service";
 import { ConnectionsService } from "src/connections/connections.service";
 
@@ -32,7 +32,7 @@ export class BotUpdate{
     }
 
     @Action('createConn')
-    async getAll(@Ctx() ctx: Scenes.SceneContext){
+    async getAll(@Ctx() ctx: Context){
         await ctx.reply('У вас ещё нет подключений. Введите логин для создания подключения.');
         // ctx.scene.enter('createConnectionScene');
     }
@@ -40,6 +40,13 @@ export class BotUpdate{
     @Hears('Прослушка')
     async getAllHears(ctx: Context){
         await ctx.reply('edit');
+    }
+
+
+    @On('text')
+    async getMessages(@Message('text') message: string, @Ctx() ctx: Context){
+        await ctx.reply(message);
+
     }
 
     // @On('text')
