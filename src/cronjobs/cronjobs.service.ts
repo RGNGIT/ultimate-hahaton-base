@@ -11,18 +11,18 @@ export class CronjobsService {
         private readonly connectionsService: ConnectionsService
         ){}
 
-    @Cron( '0 * * * * *' )
-    openForBusiness()  {
-        console.log("Delicious cakes is open for business...")
-    }
+    // @Cron( '0 * * * * *' )
+    // openForBusiness()  {
+    //     console.log("Delicious cakes is open for business...")
+    // }
 
 
-    @Cron( '*/15 * * * * *' ) 
-    takingOrders() {
-        console.log("Delicious cakes is still taking orders")
-    }
+    // @Cron( '*/15 * * * * *' ) 
+    // takingOrders() {
+    //     console.log("Delicious cakes is still taking orders")
+    // }
 
-    @Interval(15000)
+    @Interval(1500000)
     async monitorDatabases() {
         try {
           // Здесь должен быть ваш код для мониторинга баз данных

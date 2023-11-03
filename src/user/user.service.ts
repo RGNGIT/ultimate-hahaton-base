@@ -30,20 +30,22 @@ export class UserService {
       }
 
 
-      findAll() {
-        return `This action returns all connections`;
+      async findAll() {
+        return await this.usersRepository.findAll({ include: {model: Connection}});
       }
     
       async findOne(telegram_id: string) {
         return await this.usersRepository.findOne({where: {telegram_id}});
       }
     
-      update(id: number, updateUserDto: UpdateUserDto) {
-        return `This action updates a #${id} connection`;
+      async update(id: number, updateUserDto: UpdateUserDto) {
+        const user = await this.usersRepository.update(updateUserDto, { where: { id } });
+        return user;
       }
     
-      remove(id: number) {
-        return `This action removes a #${id} connection`;
+      async remove(id: number) {
+        const user = await this.usersRepository.destroy({ where: { id } });
+        return user;
       }
 
 

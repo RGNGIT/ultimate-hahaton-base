@@ -11,25 +11,44 @@ export class ConnectionsService {
     @Inject(constants.CONNECTIONS_REPOSITOTY)
     private connectionsRepository: typeof Connection) { }
 
-  create(createConnectionDto: CreateConnectionDto) {
-    const conn = this.connectionsRepository.create(createConnectionDto);
+  async create(dto: CreateConnectionDto) {
+
+    const connectionString = dto.host+';'+dto.port+';'+dto.username+';'+dto.password;
+    const conn = await this.connectionsRepository.create({connectionString, ...dto});
     return conn;
   }
 
   async findAll() {
-    const connections = this.connectionsRepository.findAll({include: {model: User}});
+    const connections = await this.connectionsRepository.findAll({include: {model: User}});
     return connections;
   }
 
-  // findOne(id: number) {
-  //   return `This action returns a #${id} connection`;
-  // }
+  async findOne(id: number) {
+    const connection = await this.connectionsRepository.findOne({where: {id}});
+    const {host, port, username, password} = this.splitCreds(connection);
+    return {
+      host, 
+      port, 
+      username, 
+      password, 
+      name: connection.name,
+    };
+  }
 
-  // update(id: number, updateConnectionDto: UpdateConnectionDto) {
-  //   return `This action updates a #${id} connection`;
-  // }
+  
+  splitCreds(credString): { host, port, username, password } {
+    const splitCreds = credString.split(';');
+    return { host: splitCreds[0], port: splitCreds[1], username: splitCreds[2], password: splitCreds[3] };
+  }
 
-  remove(id: number) {
-    return this.connectionsRepository.destroy({where: {id}});
+  async update(id: number, dto: UpdateConnectionDto) {
+    const connectionString = dto.host+';'+dto.port+';'+dto.username+';'+dto.password;
+    await this.connectionsRepository.update({connectionString, ...dto},{where: {id}});
+    const connection = await this.connectionsRepository.findByPk(id);
+    return connection;
+  }
+
+  async remove(id: number) {
+    return await this.connectionsRepository.destroy({where: {id}});
   }
 }

@@ -63,14 +63,14 @@ export class BotUpdate{
     @On('text')
     async getMessages(@Message('text') message: string, @Ctx() ctx: Context){
         
-        const connectionString = message;
-        const telegram_id = String(ctx.from.id);
-        const user = await this.usersService.findOne(telegram_id);
+        // const connectionString = message;
+        // const telegram_id = String(ctx.from.id);
+        // const user = await this.usersService.findOne(telegram_id);
 
-        const conn = await this.connectionsService.create({user_id: user.id, connectionString});
-        if(conn){
-            await ctx.reply('Подключение создано!');
-        }
+        // const conn = await this.connectionsService.create({user_id: user.id, connectionString});
+        // if(conn){
+        //     await ctx.reply('Подключение создано!');
+        // }
     }
 
     
