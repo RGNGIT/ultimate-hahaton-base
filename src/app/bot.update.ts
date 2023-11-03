@@ -48,13 +48,11 @@ export class BotUpdate{
     @Hears('Показать статус')
     async getAllHears(ctx: Context){
         const credString = await this.monitoringService.getPostgreCredsByTgId(1111);
-        const splitCreds = credString.split(';');
+        const {host, port, username, password} = this.monitoringService.splitCreds(credString);
     
-        let fullMetricsReport = await this.monitoringService.getFullMetricsReport(splitCreds[0], splitCreds[1], splitCreds[2], splitCreds[3]);
+        let partMetricsReport = await this.monitoringService.getDatabasesReport(host, port, username, password);
     
-        fullMetricsReport = fullMetricsReport['databases'].map(u => ({state: "active", ...u}));
-    
-        await ctx.reply(fullMetricsReport as string);
+        await ctx.reply(JSON.stringify(partMetricsReport));
      
     }
 

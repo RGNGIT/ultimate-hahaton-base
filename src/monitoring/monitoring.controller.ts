@@ -5,15 +5,24 @@ import { MonitoringService } from "./monitoring.service";
 export class MonitoringController {
   constructor(private readonly monitoringService: MonitoringService) { }
 
-  @Get('dbList/:tgId')
-  async databaseList(@Param() tgId) {
+  @Get('fullReport/:tgId')
+  async fullReportList(@Param() tgId) {
     const credString = await this.monitoringService.getPostgreCredsByTgId(1111);
-    const splitCreds = credString.split(';');
+    const {host, port, username, password} = this.monitoringService.splitCreds(credString);
 
-    let fullMetricsReport = await this.monitoringService.getFullMetricsReport(splitCreds[0], splitCreds[1], splitCreds[2], splitCreds[3]);
-
-    fullMetricsReport = fullMetricsReport['databases'].map(u => ({state: "active", ...u}));
+    let fullMetricsReport = await this.monitoringService.getFullMetricsReport(host, port, username, password);
 
     return fullMetricsReport;
   }
+
+  @Get('dbList/:tgId')
+  async databaseList(@Param() tgId) {
+    const credString = await this.monitoringService.getPostgreCredsByTgId(1111);
+    const {host, port, username, password} = this.monitoringService.splitCreds(credString);
+
+    let partMetricsReport = await this.monitoringService.getDatabasesReport(host, port, username, password);
+
+    return partMetricsReport;
+  }
+
 }
