@@ -65,7 +65,12 @@ export class MonitoringService {
   async getFullMetricsReport(host, port, username, password): Promise<{} | string> {
     return new Promise((resolve, reject) => {
       exec(`pgmetrics --host=${host} --port=${port} --username=${username} --format=json`, { env: { 'PGPASSWORD': password } }, (err, stdout, stderr) => {
-        resolve(JSON.parse(stdout));
+        try {
+          const result = JSON.parse(stdout);
+          resolve(result);
+        } catch(e) {
+          reject(e);
+        }
         reject(stderr);
         reject(err);
       });
