@@ -2,6 +2,7 @@ import { Injectable, ForbiddenException } from '@nestjs/common';
 import { Cron, CronExpression, Interval  } from '@nestjs/schedule';
 import { BotService } from 'src/app/bot.service';
 import { ConnectionsService } from 'src/connections/connections.service';
+import { Connection } from 'src/connections/entities/connection.entity';
 
 @Injectable()
 export class CronjobsService {
@@ -26,13 +27,30 @@ export class CronjobsService {
         try {
           // Здесь должен быть ваш код для мониторинга баз данных
           console.log('Мониторинг баз данных...');
+          const connections =  await this.connectionsService.findAll();
+
+          for (const connection of connections) {
+            this.checkDatabase(connection);
+          } 
+
     
-          throw new ForbiddenException('Forbidden');
         } catch (error) {
             
-          console.error('Ошибка мониторинга базы данных:', error);
           // Здесь можно отправить сообщение об ошибке через бота в Telegram
-          this.botService.sendTelegramMessage(`Ошибка в базе данных: ${error.message}`, "592957413" );
+          
+        }
+      }
+
+      private async checkDatabase(connection: Connection) {
+        try {
+          // Логика проверки базы данных
+          if(connection.id == 1)
+            throw new ForbiddenException('Forbidden');
+
+        } catch (error) {
+          console.error('Ошибка мониторинга базы данных:', error);
+
+          await this.botService.sendTelegramMessage(`Ошибка в базе данных: ${error.message}`, connection.user.telegram_chat_id);
         }
       }
 

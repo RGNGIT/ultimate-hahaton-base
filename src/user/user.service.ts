@@ -20,7 +20,7 @@ export class UserService {
         if (user) return user;
     
         // Если нет, создаем нового пользователя
-        user = await this.usersRepository.create({ telegram_id: createUserDto.telegram_id });
+        user = await this.usersRepository.create(createUserDto);
         return user;
       }
 
