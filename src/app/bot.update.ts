@@ -41,6 +41,12 @@ export class BotUpdate{
 
     @Action('status')
     async getStatus(@Ctx() ctx: Context){
+      
+        // ctx.scene.enter('createConnectionScene');
+    }
+
+    @Hears('Показать статус')
+    async getAllHears(ctx: Context){
         const credString = await this.monitoringService.getPostgreCredsByTgId(1111);
         const splitCreds = credString.split(';');
     
@@ -50,17 +56,12 @@ export class BotUpdate{
     
         await ctx.reply(fullMetricsReport as string);
      
-        // ctx.scene.enter('createConnectionScene');
-    }
-
-    @Hears('Прослушка')
-    async getAllHears(ctx: Context){
-        await ctx.reply('edit');
     }
 
 
     @On('text')
     async getMessages(@Message('text') message: string, @Ctx() ctx: Context){
+        
         const connectionString = message;
         const telegram_id = String(ctx.from.id);
         const user = await this.usersService.findOne(telegram_id);

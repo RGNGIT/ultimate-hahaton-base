@@ -6,6 +6,6 @@ import { MonitoringService } from './monitoring.service';
   imports: [],
   controllers: [MonitoringController],
   providers: [MonitoringService],
-  exports: []
+  exports: [MonitoringService]
 })
 export class MonitoringModule { }
