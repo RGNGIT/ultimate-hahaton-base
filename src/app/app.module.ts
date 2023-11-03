@@ -9,6 +9,7 @@ import { UserModule } from 'src/user/user.module';
 import { ConnectionsModule } from 'src/connections/connections.module';
 import { RouterModule } from '@nestjs/core';
 import path from 'src/common/path';
+import { MonitoringModule } from 'src/monitoring/monitoring.module';
 
 
 const sessions = new LocalSession({ database: 'session_db.json' })
@@ -18,6 +19,7 @@ const sessions = new LocalSession({ database: 'session_db.json' })
   imports: [
     UserModule,
     ConnectionsModule,
+    MonitoringModule,
     RouterModule.register([{
       path: path.API_REQUEST,
       children: [{
@@ -27,14 +29,20 @@ const sessions = new LocalSession({ database: 'session_db.json' })
       {
         path: path.CONNECTIONS_MODULE,
         module: ConnectionsModule
+      },
+      {
+        path: path.MONITORING_MODULE,
+        module: MonitoringModule
       }
       ]
     }]),
+    /*
     TelegrafModule.forRoot({
       token: botToken,
       middlewares: [sessions.middleware()]
     }),
+    */
   ],
-  providers: [AppService, BotUpdate],
+  providers: [AppService, /*BotUpdate*/],
 })
 export class AppModule { }
