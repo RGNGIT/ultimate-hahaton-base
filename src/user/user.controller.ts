@@ -19,6 +19,11 @@ export class UserController {
     return this.userService.findAll();
   }
 
+  @Get('connections/:id')
+  findAllUserConnections(@Param('id') id: number) {
+    return this.userService.findAllUserConnections(id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.userService.findOne(id);

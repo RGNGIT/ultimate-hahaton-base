@@ -12,20 +12,20 @@ export class ConnectionsController {
     return this.connectionsService.create(createConnectionDto);
   }
 
-  @Get()
-  findAll() {
-    return this.connectionsService.findAll();
-  }
+  // @Get()
+  // findAll() {
+  //   return this.connectionsService.findAll();
+  // }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.connectionsService.findOne(+id);
-  }
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.connectionsService.findOne(+id);
+  // }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateConnectionDto: UpdateConnectionDto) {
-    return this.connectionsService.update(+id, updateConnectionDto);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateConnectionDto: UpdateConnectionDto) {
+  //   return this.connectionsService.update(+id, updateConnectionDto);
+  // }
 
   @Delete(':id')
   remove(@Param('id') id: string) {

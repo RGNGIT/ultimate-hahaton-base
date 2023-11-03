@@ -45,22 +45,15 @@ export class BotUpdate{
 
     @On('text')
     async getMessages(@Message('text') message: string, @Ctx() ctx: Context){
-        await ctx.reply(message);
+        const connectionString = message;
+        const telegram_id = String(ctx.from.id);
+        const user = await this.usersService.findOne(telegram_id);
 
+        const conn = await this.connectionsService.create({user_id: user.id, connectionString});
+        if(conn){
+            await ctx.reply('Подключение создано!');
+        }
     }
-
-    // @On('text')
-    // async onText(@Message('text') text: string, @Ctx() ctx: Scenes.SceneContext) {
-    //   if (ctx.scene.current?.id === 'createConnectionScene') {
-    //     const telegram_id = String(ctx.from.id);
-    //     const user = await this.usersService.findOne(telegram_id);
-    //     const connectionString = text;
-    //     await this.connectionsService.create({user_id: user.id, connectionString});
-    //     await ctx.reply('Подключение создано!');
-    //     ctx.scene.leave();
-    //   }
-    // }
-
 
     
 }
