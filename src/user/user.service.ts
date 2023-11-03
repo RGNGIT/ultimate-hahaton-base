@@ -10,41 +10,40 @@ import { Connection } from 'src/connections/entities/connection.entity';
 export class UserService {
   constructor(
     @Inject(constants.USERS_REPOSITORY)
-    private usersRepository: typeof User){}
+    private usersRepository: typeof User) { }
 
-      async create(createUserDto: CreateUserDto): Promise<User>  {
-        // Проверяем, существует ли пользователь
-        let user = await this.usersRepository.findOne({ where: { telegram_id: createUserDto.telegram_id } });
-    
-        // Если пользователь существует, возвращаем его
-        if (user) return user;
-    
-        // Если нет, создаем нового пользователя
-        user = await this.usersRepository.create({ telegram_id: createUserDto.telegram_id });
-        return user;
-      }
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    // Проверяем, существует ли пользователь
+    let user = await this.usersRepository.findOne({ where: { telegram_id: createUserDto.telegram_id } });
 
-      async findAllUserConnections(id: number): Promise<Connection[]>{
-        const user = await this.usersRepository.findOne({where: {id}, include: {model: Connection}});
-        return user.connectionStrings;
-      }
+    // Если пользователь существует, возвращаем его
+    if (user) return user;
 
+    // Если нет, создаем нового пользователя
+    user = await this.usersRepository.create({ telegram_id: createUserDto.telegram_id });
+    return user;
+  }
 
-      findAll() {
-        return `This action returns all connections`;
-      }
-    
-      async findOne(telegram_id: string) {
-        return await this.usersRepository.findOne({where: {telegram_id}});
-      }
-    
-      update(id: number, updateUserDto: UpdateUserDto) {
-        return `This action updates a #${id} connection`;
-      }
-    
-      remove(id: number) {
-        return `This action removes a #${id} connection`;
-      }
+  async findAllUserConnections(id: number): Promise<Connection[]> {
+    const user = await this.usersRepository.findOne({ where: { id }, include: { model: Connection } });
+    return user.connectionStrings;
+  }
+
+  findAll() {
+    return `This action returns all connections`;
+  }
+
+  async findOne(telegram_id: string) {
+    return await this.usersRepository.findOne({ where: { telegram_id } });
+  }
+
+  update(id: number, updateUserDto: UpdateUserDto) {
+    return `This action updates a #${id} connection`;
+  }
+
+  remove(id: number) {
+    return `This action removes a #${id} connection`;
+  }
 
 
 }

@@ -40,7 +40,6 @@ const sessions = new LocalSession({ database: 'session_db.json' })
       token: botToken,
       middlewares: [sessions.middleware()]
     }),
-
   ],
   providers: [AppService, BotUpdate],
 })
