@@ -42,7 +42,7 @@ export class MonitoringService {
       const user = await this.findUserByTgId(tgId);
       return user.connectionStrings.map(cs => ({id: cs.id, connectionString: cs.connectionString}));
     } catch {
-      throw new HttpException('User seems to has no hosts', 500);
+      throw new HttpException('User seems to has no hosts', 404);
     }
   }
 
