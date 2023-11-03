@@ -10,7 +10,7 @@ export class MonitoringController {
   @ApiOperation({summary:'Полные отчеты по всем подключениям пользователя'})
   @ApiResponse({status:200})
   @Get('fullReports/:tgId')
-  async fullReportList(@Param('tgId') tgId) {
+  async fullReportList(@Param('tgId') tgId: string) {
     const credStrings = await this.monitoringService.getPostgreCredsByTgId(tgId);
     return this.monitoringService.collectDatabaseFullInfos(credStrings);
   }
@@ -18,7 +18,8 @@ export class MonitoringController {
   @ApiOperation({summary:'Отчеты по базам данных по всем подключениям пользователя'})
   @ApiResponse({status:200})
   @Get('fullHostsDbList/:tgId')
-  async databaseList(@Param('tgId') tgId) {
+  async databaseList(@Param('tgId') tgId: string) {
+    console.log("Я тута " + tgId);
     const credStrings = await this.monitoringService.getPostgreCredsByTgId(tgId);
     return this.monitoringService.collectDatabaseShortInfos(credStrings);
   }
@@ -26,7 +27,7 @@ export class MonitoringController {
   @ApiOperation({summary:'Все подключения пользователя'})
   @ApiResponse({status:200})
   @Get('usersHosts/:tgId')
-  async hostsList(@Param('tgId') tgId) {
+  async hostsList(@Param('tgId') tgId: string) {
     const credStrings = await this.monitoringService.getPostgreCredsByTgId(tgId);
     return credStrings.map(cs => ({id: cs.id, host: cs.connectionString.split(';')[0]}));
   }
