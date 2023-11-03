@@ -13,10 +13,11 @@ export function actionButtons(){
     );
 }
 
-export function mainButton(){
+export function statusButton(){
     return Markup.keyboard(
         [
-            Markup.button.webApp('Начать работу',  'https://stas-monitor-bot.netlify.app/'),
+            //Markup.button.webApp('Начать работу',  'https://stas-monitor-bot.netlify.app/'),
+            Markup.button.callback('Показать статус', 'status'),
         ],
         {
             

@@ -1,10 +1,11 @@
 import { AppService } from "./app.service";
 import { InjectBot, Start, Update, Action, Hears, On, Message, Ctx, Command } from "nestjs-telegraf";
 import { Telegraf  } from "telegraf";
-import { actionButtons, mainButton } from "./bot.buttons";
+import { actionButtons, statusButton } from "./bot.buttons";
 import { Context, } from 'telegraf';
 import { UserService } from "src/user/user.service";
 import { ConnectionsService } from "src/connections/connections.service";
+import { MonitoringService } from "src/monitoring/monitoring.service";
 
 @Update()
 export class BotUpdate{
@@ -12,6 +13,7 @@ export class BotUpdate{
         private readonly appService: AppService,
         private readonly usersService: UserService,
         private readonly connectionsService: ConnectionsService,
+        private readonly monitoringService: MonitoringService,
     ){}
 
     @Start()
@@ -24,7 +26,7 @@ export class BotUpdate{
         const userConnections = await this.usersService.findAllUserConnections(user.id);
 
         if(userConnections.length > 0){
-            await ctx.reply('Мои подключения')
+            await ctx.reply('Мои подключения', statusButton())
         }
         else {
             await ctx.reply('У Вас нет подключений, создайте  новое', actionButtons());
@@ -34,6 +36,20 @@ export class BotUpdate{
     @Action('createConn')
     async getAll(@Ctx() ctx: Context){
         await ctx.reply('У вас ещё нет подключений. Введите логин для создания подключения.');
+        // ctx.scene.enter('createConnectionScene');
+    }
+
+    @Action('status')
+    async getStatus(@Ctx() ctx: Context){
+        const credString = await this.monitoringService.getPostgreCredsByTgId(1111);
+        const splitCreds = credString.split(';');
+    
+        let fullMetricsReport = await this.monitoringService.getFullMetricsReport(splitCreds[0], splitCreds[1], splitCreds[2], splitCreds[3]);
+    
+        fullMetricsReport = fullMetricsReport['databases'].map(u => ({state: "active", ...u}));
+    
+        await ctx.reply(fullMetricsReport as string);
+     
         // ctx.scene.enter('createConnectionScene');
     }
 
