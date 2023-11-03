@@ -3,8 +3,8 @@ import { Markup } from 'telegraf'
 export function actionButtons(){
     return Markup.inlineKeyboard(
         [
-            // Markup.button.webApp('Начать работу',  'https://stas-monitor-bot.netlify.app/'),
-            Markup.button.callback('Создать подключение', 'createConn'),
+            Markup.button.webApp('Создать подключение',  'https://stas-monitor-bot.netlify.app/add'),
+            //Markup.button.callback('Создать подключение', 'createConn'),
             // Markup.button.callback('Удоли', 'delete'),
         ],
         {

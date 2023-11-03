@@ -18,6 +18,9 @@ export class User extends Model<User, UserCreationAttrs>{
     @Column({ type: DataType.STRING, allowNull: false})
     telegram_id: string;
 
+    @Column({ type: DataType.STRING })
+    telegram_chat_id: string;
+
     @HasMany(()=>Connection)
     connectionStrings: Connection[];
 
