@@ -3,6 +3,7 @@ import UpdateUserDto from './dto/update-user.dto';
 import CreateUserDto from './dto/create-user.dto';
 import constants from 'src/common/constants';
 import { User } from './entities/user.entity';
+import { Connection } from 'src/connections/entities/connection.entity';
 
 
 @Injectable()
@@ -11,16 +12,30 @@ export class UserService {
     @Inject(constants.USERS_REPOSITORY)
     private usersRepository: typeof User){}
 
-      create(createUserDto: CreateUserDto) {
-        return 'This action adds a new connection';
-      }
+      async create(createUserDto: CreateUserDto): Promise<User>  {
+        // Проверяем, существует ли пользователь
+        let user = await this.usersRepository.findOne({ where: { telegram_id: createUserDto.telegram_id } });
     
+        // Если пользователь существует, возвращаем его
+        if (user) return user;
+    
+        // Если нет, создаем нового пользователя
+        user = await this.usersRepository.create({ telegram_id: createUserDto.telegram_id });
+        return user;
+      }
+
+      async findAllUserConnections(id: number): Promise<Connection[]>{
+        const user = await this.usersRepository.findOne({where: {id}, include: {model: Connection}});
+        return user.connectionStrings;
+      }
+
+
       findAll() {
         return `This action returns all connections`;
       }
     
-      findOne(id: number) {
-        return `This action returns a #${id} connection`;
+      async findOne(telegram_id: number) {
+        return await this.usersRepository.findOne({where: {telegram_id}});
       }
     
       update(id: number, updateUserDto: UpdateUserDto) {

@@ -8,5 +8,6 @@ import { usersProvider } from './providers/user.providers';
   imports: [SequelizeModule],
   controllers: [UserController],
   providers: [UserService, ...usersProvider],
+  exports:[UserService]
 })
 export class UserModule {}
