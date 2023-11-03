@@ -4,8 +4,6 @@ export function actionButtons(){
     return Markup.inlineKeyboard(
         [
             Markup.button.webApp('Создать подключение',  'https://stas-monitor-bot.netlify.app/add'),
-            //Markup.button.callback('Создать подключение', 'createConn'),
-            // Markup.button.callback('Удоли', 'delete'),
         ],
         {
             columns: 1
@@ -16,11 +14,9 @@ export function actionButtons(){
 export function statusButton(){
     return Markup.keyboard(
         [
-            //Markup.button.webApp('Начать работу',  'https://stas-monitor-bot.netlify.app/'),
-            Markup.button.callback('Показать статус', 'status'),
+            Markup.button.webApp('Показать статус', 'https://stas-monitor-bot.netlify.app/'),
+            Markup.button.webApp('Создать новое подключение', 'https://stas-monitor-bot.netlify.app/add'),
         ],
-        {
-            
-        }
-    )
+        { columns: 2 }
+    ).resize();
 }

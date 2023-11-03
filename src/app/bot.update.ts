@@ -32,21 +32,21 @@ export class BotUpdate{
             await ctx.reply('Мои подключения', statusButton())
         }
         else {
-            await ctx.reply('У Вас нет подключений, создайте  новое', actionButtons());
+            await ctx.reply('У Вас нет подключений, создайте новое', actionButtons());
         }
     }
 
-    @Action('createConn')
-    async getAll(@Ctx() ctx: Context){
-        await ctx.reply('У вас ещё нет подключений. Введите логин для создания подключения.');
-        // ctx.scene.enter('createConnectionScene');
-    }
+    // @Action('createConn')
+    // async getAll(@Ctx() ctx: Context){
+    //     await ctx.reply('У вас ещё нет подключений. Введите логин для создания подключения.');
 
-    @Action('status')
-    async getStatus(@Ctx() ctx: Context){
+    // }
+
+    // @Action('status')
+    // async getStatus(@Ctx() ctx: Context){
       
-        // ctx.scene.enter('createConnectionScene');
-    }
+       
+    // }
 
     @Hears('Показать статус')
     async getAllHears(ctx: Context){
@@ -62,15 +62,7 @@ export class BotUpdate{
 
     @On('text')
     async getMessages(@Message('text') message: string, @Ctx() ctx: Context){
-        
-        // const connectionString = message;
-        // const telegram_id = String(ctx.from.id);
-        // const user = await this.usersService.findOne(telegram_id);
-
-        // const conn = await this.connectionsService.create({user_id: user.id, connectionString});
-        // if(conn){
-        //     await ctx.reply('Подключение создано!');
-        // }
+        await ctx.reply("Привет! Чтобы посмотреть статус базы данных, переходи по кнопке", statusButton())
     }
 
     
