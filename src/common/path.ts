@@ -3,4 +3,5 @@ export default {
   USER_MODULE: "users",
   CONNECTIONS_MODULE: "connections",
   CDN_MODULE: "cdn",
+  MONITORING_MODULE: "monitoring"
 };
