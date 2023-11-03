@@ -5,24 +5,22 @@ import { MonitoringService } from "./monitoring.service";
 export class MonitoringController {
   constructor(private readonly monitoringService: MonitoringService) { }
 
-  @Get('fullReport/:tgId')
-  async fullReportList(@Param() tgId) {
-    const credString = await this.monitoringService.getPostgreCredsByTgId(1111);
-    const {host, port, username, password} = this.monitoringService.splitCreds(credString);
-
-    let fullMetricsReport = await this.monitoringService.getFullMetricsReport(host, port, username, password);
-
-    return fullMetricsReport;
+  @Get('fullReports/:tgId')
+  async fullReportList(@Param('tgId') tgId) {
+    const credStrings = await this.monitoringService.getPostgreCredsByTgId(tgId);
+    return this.monitoringService.collectDatabaseFullInfos(credStrings);
   }
 
-  @Get('dbList/:tgId')
-  async databaseList(@Param() tgId) {
-    const credString = await this.monitoringService.getPostgreCredsByTgId(1111);
-    const {host, port, username, password} = this.monitoringService.splitCreds(credString);
+  @Get('fullHostsDbList/:tgId')
+  async databaseList(@Param('tgId') tgId) {
+    const credStrings = await this.monitoringService.getPostgreCredsByTgId(tgId);
+    return this.monitoringService.collectDatabaseShortInfos(credStrings);
+  }
 
-    let partMetricsReport = await this.monitoringService.getDatabasesReport(host, port, username, password);
-
-    return partMetricsReport;
+  @Get('usersHosts/:tgId')
+  async hostsList(@Param('tgId') tgId) {
+    const credStrings = await this.monitoringService.getPostgreCredsByTgId(tgId);
+    return credStrings.map(cs => ({id: cs.id, host: cs.connectionString.split(';')[0]}));
   }
 
 }

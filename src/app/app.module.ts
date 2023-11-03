@@ -36,12 +36,13 @@ const sessions = new LocalSession({ database: 'session_db.json' })
       }
       ]
     }]),
+    /*
     TelegrafModule.forRoot({
       token: botToken,
       middlewares: [sessions.middleware()]
     }),
-
+    */
   ],
-  providers: [AppService, BotUpdate],
+  providers: [AppService, /*BotUpdate*/],
 })
 export class AppModule { }
