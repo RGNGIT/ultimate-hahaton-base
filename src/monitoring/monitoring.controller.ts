@@ -6,7 +6,7 @@ import { ApiTags } from "@nestjs/swagger";
 @Controller()
 export class MonitoringController {
   constructor(private readonly monitoringService: MonitoringService) { }
-  // Фул постгре репорты по всем хостам юзера, к оторым подъебан юзер (таблица connections)
+  // Фул постгре репорты по всем хостам юзера, к оторым подъебан юзер (таблица connections)A
   @Get('fullReports/:tgId')
   async fullReportList(@Param('tgId') tgId) {
     const credStrings = await this.monitoringService.getPostgreCredsByTgId(tgId);

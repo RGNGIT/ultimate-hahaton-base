@@ -17,5 +17,5 @@ export class CreateConnectionDto {
   @ApiPropertyOptional({ description: "Название подключения" })
   name?: string;
   @ApiProperty({ description: "Идентификатор пользователя в базе данных" })
-  user_id: number;
+  telegram_id: number;
 }
