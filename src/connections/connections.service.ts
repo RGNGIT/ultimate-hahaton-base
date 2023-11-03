@@ -10,7 +10,7 @@ export class ConnectionsService {
   constructor(
     @Inject(constants.CONNECTIONS_REPOSITOTY)
     private connectionsRepository: typeof Connection,
-    @Inject(constants.CONNECTIONS_REPOSITOTY)
+    @Inject(constants.USERS_REPOSITORY)
     private userRepository: typeof User
   ) { }
 

@@ -15,7 +15,6 @@ export class ConnectionsController {
   @ApiResponse({status:200, type: Connection})
   @Post()
   async create(@Body() createConnectionDto: CreateConnectionDto) {
-    console.log(createConnectionDto);
     return await this.connectionsService.create(createConnectionDto);
   }
 
