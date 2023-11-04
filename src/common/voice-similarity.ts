@@ -10,7 +10,7 @@ export function similarity(s1, s2) {
     if (longerLength == 0) {
       return 1.0;
     }
-    return (longerLength - this.editDistance(longer, shorter)) / parseFloat(longerLength);
+    return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength);
   }
   
    export function editDistance(s1, s2) {

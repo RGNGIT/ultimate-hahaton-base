@@ -7,7 +7,6 @@ import { UserService } from "src/user/user.service";
 import { ConnectionsService } from "src/connections/connections.service";
 import { MonitoringService } from "src/monitoring/monitoring.service";
 import axios from "axios";
-import { webApp } from "telegraf/typings/button";
 import { similarity } from "src/common/voice-similarity";
 
 @Update()
@@ -100,9 +99,10 @@ export class BotUpdate {
           'Content-Type': 'multipart/form-data'
         }
       });
-
+      console.log(response)
       const command = this.commands.find(x => similarity(x, response.data.text) >= 0.90);
-
+ 
+      console.log(command)
       switch (command) {
         case "Создать подключение":
           ctx.reply("подключение");
