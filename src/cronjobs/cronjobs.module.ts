@@ -5,9 +5,10 @@ import { ConnectionsService } from 'src/connections/connections.service';
 import { connectionProvider } from 'src/connections/providers/connection.providers';
 import { MonitoringService } from 'src/monitoring/monitoring.service';
 import { cronjobProvider } from './entities/providers/cronjobs.providers';
+import { SshService } from 'src/monitoring/ssh.service';
 
 @Module({
   imports: [],
-  providers: [CronjobsService, MonitoringService, BotService, ConnectionsService, ...connectionProvider, ...cronjobProvider]
+  providers: [CronjobsService, MonitoringService, BotService, ConnectionsService, SshService,  ...connectionProvider, ...cronjobProvider]
 })
 export class CronjobsModule {}

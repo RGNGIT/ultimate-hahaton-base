@@ -30,7 +30,7 @@ export function statusButton(){
 export function myConnectsButton(connections){
     const connectionButtons = connections.map((connection) =>
         // Markup.button.callback(`${connection.name}`, `connection_${connection.id}`)
-        Markup.button.webApp(`${connection.name}`, `https://stas-monitor-bot.netlify.app/`)
+        Markup.button.webApp(`${connection.name}`, `https://stas-monitor-bot.netlify.app/${connection.id}`)
     );
     return Markup.inlineKeyboard(
         [

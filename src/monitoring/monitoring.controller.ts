@@ -1,6 +1,7 @@
 import { Body, Controller, Get, HttpException, Param, Post, Query } from "@nestjs/common";
 import { MonitoringService } from "./monitoring.service";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { CommandDto } from "./commands/commands.dto";
 
 @ApiTags('Мониторинг баз')
 @Controller()
@@ -46,14 +47,24 @@ export class MonitoringController {
   }
 
 
-    // Все хосты юзера из таблицы connections
-    @ApiOperation({ summary: 'Перезапуск бд' })
-    @ApiResponse({ status: 200 })
-    @Post('database/:tgId')
-    async reloadDB(@Param('tgId') tgId: string, @Body('host') host: string   ) {
-      const credStrings = await this.monitoringService.getPostgreCredsByHost(tgId, host);
+  // Все хосты юзера из таблицы connections
+  @ApiOperation({ summary: 'Перезапуск бд' })
+  @ApiResponse({ status: 200 })
+  @Post('database/:tgId')
+  async reloadDB(@Param('tgId') tgId: string, @Body('host') host: string) {
+    const credStrings = await this.monitoringService.getPostgreCredsByHost(tgId, host);
 
     return await this.monitoringService.restartPG(credStrings);
+  }
+
+  // Все хосты юзера из таблицы connections
+  @ApiOperation({ summary: 'Выполнить команду' })
+  @ApiResponse({ status: 200 })
+  @Post('commands/:tgId')
+  async executeCommand(@Param('tgId') tgId: string, @Body() commandDto: CommandDto, @Query('params') params ) {
+    const credStrings = await this.monitoringService.getPostgreCredsByHost(tgId, commandDto.host);
+
+    return await this.monitoringService.executeCommand(credStrings, commandDto.command, params);
   }
 
 

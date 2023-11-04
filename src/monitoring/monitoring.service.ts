@@ -6,6 +6,7 @@ import { Status } from "src/cronjobs/entities/status.entity";
 import { User } from "src/user/entities/user.entity";
 import { Dialect, Sequelize } from "sequelize";
 import { Log } from "src/cronjobs/entities/log.entity";
+import { SshService } from "./ssh.service";
 
 @Injectable()
 export class MonitoringService {
@@ -17,7 +18,8 @@ export class MonitoringService {
     @Inject(constants.STATUS_REPOSITORY)
     private statusRepository: typeof Status,
     @Inject(constants.LOG_REPOSITORY)
-    private logRepository: typeof Log
+    private logRepository: typeof Log, 
+    private readonly sshService: SshService,
   ) { }
 
   async collectDatabaseShortInfos(credStrings) {
@@ -155,16 +157,6 @@ export class MonitoringService {
   }
 
   async restartPG(credStrings) {
-    // try {
-    //   const output = await this.sshService.connectAndExecute(
-    //     `${host}:${port}`, username, password,
-    //     'sudo service postgresql restart'
-    //   );
-    //   return { message: 'Database restarted successfully', output: output };
-    // } catch (error) {
-    //   // Handle error appropriately
-    //   return { error: error.message };
-    // }
     const splitCreds = this.splitCreds(credStrings);
 
     const sequelizeConfig = {
@@ -180,6 +172,41 @@ export class MonitoringService {
     const result = await sequelize.query("SELECT pg_reload_conf()");
     await sequelize.close();
     return result;
+  }
+
+
+  async executeCommand(credStrings, command: string, params) {
+    
+    const splitCreds = this.splitCreds(credStrings);
+
+    const sequelizeConfig = {
+      dialect: 'postgres' as Dialect,
+      host: splitCreds.host,
+      port: Number(splitCreds.port),
+      username: splitCreds.username,
+      password: splitCreds.password,
+      // database: database
+    }
+    
+
+    const sequelize = new Sequelize(sequelizeConfig);
+    const result = await sequelize.query(`SELECT ${command}(${params})`);
+    await sequelize.close();
+    return result;
+  }
+
+
+  async executeSsh(host, port, username, password){
+  try {
+      const output = await this.sshService.connectAndExecute(
+        `${host}:${port}`, username, password,
+        'sudo service postgresql restart'
+      );
+      return { message: 'Database restarted successfully', output: output };
+    } catch (error) {
+      // Handle error appropriately
+      return { error: error.message };
+    }
   }
 }
 

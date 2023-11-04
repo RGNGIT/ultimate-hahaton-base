@@ -72,6 +72,7 @@ export class CronjobsService {
         password: splitCreds[3],
         database: 'postgres'
       }
+      console.log(sequelizeConfig);
 
       const sequelize = new Sequelize(sequelizeConfig);
       await sequelize.query("SELECT 1+1;");
@@ -81,13 +82,10 @@ export class CronjobsService {
 
       console.error('Ошибка мониторинга базы данных:', error);
 
-      let log = await this.logRepository.findOne({ where: { host:  splitCreds[0], message: error.message, date: Date.now()} });
+      // let log = await this.logRepository.findOne({ where: { host:  splitCreds[0], message: error.message, date: Date.now()} });
     
-      // Если пользователь существует, возвращаем его
-      // if (!log) {
-        await this.logRepository.create({host:  splitCreds[0], message: error.message.toString(), type: LogType.error, date: Date.now()});
-        await this.botService.sendTelegramMessage(`Ошибка в базе данных ${splitCreds[0]}. Хост не прошел HealthCheck.`, connection.user.telegram_chat_id);
-      //}
+      await this.logRepository.create({host:  splitCreds[0], message: error.message.toString(), type: LogType.error, date: Date.now()});
+      await this.botService.sendTelegramMessage(`Ошибка в базе данных ${splitCreds[0]}. Хост не прошел HealthCheck.`, connection.user.telegram_chat_id);
     }
   }
 
