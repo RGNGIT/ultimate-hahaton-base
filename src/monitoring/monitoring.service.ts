@@ -113,14 +113,16 @@ export class MonitoringService {
     try {
       let fullMetricsReport = JSON.parse(await this.getFullMetricsReport(host, port, username, password) as string);
       let tablespace = fullMetricsReport['tablespaces'].find(f => f.name == 'pg_default');
-      fullMetricsReport = fullMetricsReport['databases'].map(u => ({ state: "active", tablespace, ...u }));
+      let backends = fullMetricsReport['backends'];
+      fullMetricsReport = fullMetricsReport['databases'].map(u => ({ state: "active", tablespace, backends, ...u }));
 
       for (const db of fullMetricsReport as Array<any>) {
         db.charts = await this.findChartsByOid(db.oid);
       }
       // fullMetricsReport[1].state = 'degraded';
       return fullMetricsReport as Array<any>;
-    } catch {
+    } catch(e) {
+      console.log(e);
       return 'error';
     }
   }

@@ -27,7 +27,7 @@ export class ConnectionsController {
 
   @ApiOperation({summary:'Инфо о подключении'})
   @ApiResponse({status:200})
-  @Get(':id')
+  @Post(':id')
   async findOne(@Param('id') id: string) {
     return await this.connectionsService.findOne(+id);
   }
