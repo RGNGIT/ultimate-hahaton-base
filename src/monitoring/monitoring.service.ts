@@ -96,8 +96,8 @@ export class MonitoringService {
   async fetchHostLogs(host) {
     const logs = await this.logRepository.findAll({ where: [{ host }] });
     let snapLogs = [];
-
-    for (let i = 0; i < 20; i++) {
+    const count = snapLogs.length <= 20 ? snapLogs.length : 20;
+    for (let i = 0; i < count; i++) {
       snapLogs.push(logs[i]);
     }
 

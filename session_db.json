@@ -9,7 +9,11 @@
     {
       "id": "857600265:857600265",
       "data": {
-        "__scenes": {}
+        "__scenes": {
+          "current": "connectionWizard",
+          "state": {},
+          "cursor": 1
+        }
       }
     },
     {
@@ -22,6 +26,15 @@
       "id": "994607303:994607303",
       "data": {
         "__scenes": {}
+      }
+    },
+    {
+      "id": "521670921:521670921",
+      "data": {
+        "__scenes": {
+          "current": "my_scene",
+          "state": {}
+        }
       }
     }
   ]
