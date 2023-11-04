@@ -4,16 +4,17 @@ import constants from "src/common/constants";
 import { Connection } from "src/connections/entities/connection.entity";
 import { Status } from "src/cronjobs/entities/status.entity";
 import { User } from "src/user/entities/user.entity";
-import { SshService } from "./ssh.service";
+import { Dialect, Sequelize } from "sequelize";
 
 @Injectable()
 export class MonitoringService {
   constructor(
     @Inject(constants.USERS_REPOSITORY)
     private usersRepository: typeof User,
+    @Inject(constants.CONNECTIONS_REPOSITOTY)
+    private connectionsRepository: typeof Connection,
     @Inject(constants.STATUS_REPOSITORY)
     private statusRepository: typeof Status,
-    private readonly sshService: SshService
   ) { }
 
   async collectDatabaseShortInfos(credStrings) {
@@ -46,6 +47,15 @@ export class MonitoringService {
     try {
       const user = await this.findUserByTgId(tgId);
       return user.connectionStrings.map(cs => ({ id: cs.id, connectionString: cs.connectionString }));
+    } catch {
+      throw new HttpException('User seems to has no hosts', 404);
+    }
+  }
+
+  async getPostgreCredsByName(name:string): Promise<string> {
+    try {
+      const conn =  await this.connectionsRepository.findOne({where: {name}});
+      return conn.connectionString;
     } catch {
       throw new HttpException('User seems to has no hosts', 404);
     }
@@ -114,17 +124,32 @@ export class MonitoringService {
     });
   }
 
-  async restartPG(host, port, username, password, database) {
-    try {
-      const output = await this.sshService.connectAndExecute(
-        `${host}:${port}`, username, password,
-        'sudo service postgresql restart'
-      );
-      return { message: 'Database restarted successfully', output: output };
-    } catch (error) {
-      // Handle error appropriately
-      return { error: error.message };
+  async restartPG( credStrings ) {
+     // try {
+    //   const output = await this.sshService.connectAndExecute(
+    //     `${host}:${port}`, username, password,
+    //     'sudo service postgresql restart'
+    //   );
+    //   return { message: 'Database restarted successfully', output: output };
+    // } catch (error) {
+    //   // Handle error appropriately
+    //   return { error: error.message };
+    // }
+    const splitCreds = this.splitCreds(credStrings);
+
+    const sequelizeConfig = {
+      dialect: 'postgres' as Dialect,
+      host: splitCreds.host,
+      port: Number(splitCreds.port),
+      username: splitCreds.username,
+      password: splitCreds.password,
+      // database: database
     }
+
+    const sequelize = new Sequelize(sequelizeConfig);
+    const result = await sequelize.query("SELECT pg_reload_conf()");
+    await sequelize.close();
+    return result;
   }
 }
 

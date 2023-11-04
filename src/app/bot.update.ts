@@ -65,5 +65,27 @@ export class BotUpdate{
         await ctx.reply("Привет! Чтобы посмотреть статус базы данных, переходи по кнопке", statusButton())
     }
 
+
+    // @Command('reload'){
+
+    // }
+
+//    @Command('upload_key')
+//    async executeUploadKey(ctx: Context) {
+//         ctx.reply('Пожалуйста, отправьте ваш приватный ключ в ответном сообщении.');
+//       }
+      
+//       @On('text')
+//       async getDocument(@Message('document') message: string, ctx: Context) {
+//         // Проверить, ожидаем ли мы получение файла
+//         if (ctx.message.reply_to_message && ctx.message.reply_to_message.text.includes('отправьте ваш приватный ключ')) {
+//           // Получение файла
+//           const fileId = ctx.message.document.file_id;
+//           const fileLink = await ctx.telegram.getFileLink(fileId);
+          
+//           // Здесь можно скачать файл и сохранить его локально или обработать как нужно
+//           ctx.reply('Файл ключа получен. Производим настройку подключения...');
+//         }
+//       };
     
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, HttpException, Param, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, HttpException, Param, Post, Query } from "@nestjs/common";
 import { MonitoringService } from "./monitoring.service";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 
@@ -44,5 +44,18 @@ export class MonitoringController {
     const credStrings = await this.monitoringService.getPostgreCredsByTgId(tgId);
     return credStrings.map(cs => ({ id: cs.id, host: cs.connectionString.split(';')[0] }));
   }
+
+
+    // Все хосты юзера из таблицы connections
+    @ApiOperation({ summary: 'Перезапуск бд' })
+    @ApiResponse({ status: 200 })
+    @Post('database/:tgId')
+    async reloadDB(@Param('tgId') tgId: string, @Body('name') name: string   ) {
+      const credStrings = await this.monitoringService.getPostgreCredsByName(name);
+
+      return  await this.monitoringService.restartPG(credStrings);
+    }
+  
+  
 
 } 
