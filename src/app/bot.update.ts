@@ -1,13 +1,14 @@
 import { AppService } from "./app.service";
 import { InjectBot, Start, Update, Action, Hears, On, Message, Ctx, Command } from "nestjs-telegraf";
 import { Telegraf } from "telegraf";
-import { actionButtons, statusButton } from "./bot.buttons";
+import { actionButtons, myConnectsButton, statusButton } from "./bot.buttons";
 import { Context, } from 'telegraf';
 import { UserService } from "src/user/user.service";
 import { ConnectionsService } from "src/connections/connections.service";
 import { MonitoringService } from "src/monitoring/monitoring.service";
 import axios from "axios";
 import { similarity } from "src/common/voice-similarity";
+import { BotService } from "./bot.service";
 
 @Update()
 export class BotUpdate {
@@ -17,6 +18,7 @@ export class BotUpdate {
     private readonly usersService: UserService,
     private readonly connectionsService: ConnectionsService,
     private readonly monitoringService: MonitoringService,
+    private readonly botService: BotService,
 
   ) { }
 
@@ -29,11 +31,12 @@ export class BotUpdate {
 
     const user = await this.usersService.create({ telegram_id, telegram_chat_id });
 
-    ctx.reply('Вас приветствует наш сервис!');
+    ctx.reply('Вас приветствует наш сервис!', statusButton());
     const userConnections = await this.usersService.findAllUserConnections(user.id);
 
     if (userConnections.length > 0) {
-      await ctx.reply('Мои подключения', statusButton())
+
+      await ctx.reply('Мои подключения:', myConnectsButton(userConnections))
     }
     else {
       await ctx.reply('У Вас нет подключений, создайте новое', actionButtons());
@@ -63,95 +66,166 @@ export class BotUpdate {
 
   }
 
-  @Hears('Создать подключение')
-  async createNewConnection(ctx: Context) {
-
-  }
-
-
-  @On('text')
-  async getMessages(@Message('text') message: string, @Ctx() ctx: Context) {
-    await ctx.reply("Привет! Чтобы посмотреть статус базы данных, переходи по кнопке", statusButton())
-  }
-
-  @On('document')
-  async getFiles(@Message('document') message: string, @Ctx() ctx: Context){
-   // const fileId = ctx.message.document.file_id;
-
-
-  }
-
-
-  @On('voice')
-  async getVoice(@Message('voice') message: any, @Ctx() ctx: Context) {
-    try {
-      const voice = message;
-      const fileId = voice.file_id;
-      const fileDetails = await ctx.telegram.getFile(fileId);
-      const fileLink = await ctx.telegram.getFileLink(fileId);
-
-      let blob = await fetch(fileLink.toString()).then(r => r.blob());
-      var formData = new FormData();
-      formData.append('file', blob);
-
-      const response = await axios.post('http://localhost:8000/speech-to-text/', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      console.log(response)
-      const command = this.commands.find(x => similarity(x, response.data.text) >= 0.90);
- 
-      console.log(command)
-      switch (command) {
-        case "Создать подключение":
-          ctx.reply("подключение");
-          break;
-        case "Показать статус":
-          ctx.reply("статус");
-          break;
-      }
-
-      return response.data.text;
-
-    } catch (error) {
-      console.error('Error processing voice message:', error);
-      ctx.reply('Sorry, I could not process your voice message.');
-    }
-  }
-
-  commands = [
-    "Создать подключение",
-    "Показать статус"
-  ]
-
-
-
-
-
-
-
-  // @Command('reload'){
+  // @Hears('Создать подключение')
+  // async createNewConnection(ctx: Context) {
 
   // }
 
-  //    @Command('upload_key')
-  //    async executeUploadKey(ctx: Context) {
-  //         ctx.reply('Пожалуйста, отправьте ваш приватный ключ в ответном сообщении.');
-  //       }
 
-  //       @On('text')
-  //       async getDocument(@Message('document') message: string, ctx: Context) {
-  //         // Проверить, ожидаем ли мы получение файла
-  //         if (ctx.message.reply_to_message && ctx.message.reply_to_message.text.includes('отправьте ваш приватный ключ')) {
-  //           // Получение файла
-  //           const fileId = ctx.message.document.file_id;
-  //           const fileLink = await ctx.telegram.getFileLink(fileId);
+  // @On('text')
+  // async getMessages(@Message('text') message: string, @Ctx() ctx: Context) {
 
-  //           // Здесь можно скачать файл и сохранить его локально или обработать как нужно
-  //           ctx.reply('Файл ключа получен. Производим настройку подключения...');
-  //         }
-  //       };
+  //   await ctx.reply("Привет! Чтобы посмотреть статус базы данных, переходи по кнопке", statusButton())
+  // }
 
-}
+  @Action('upload_doc')
+    async executeUploadKey(ctx: Context) {
+      ctx.reply('Пожалуйста, отправьте вашу строку подключения в ответном сообщении в виде: host;port;username;password');
+  }
+
+  
+
+  @On('text')
+  async getText(@Message() message: any,  @Ctx() ctx: Context) {
+    if (message.reply_to_message && message.reply_to_message.text.includes('отправьте вашу строку подключения')) {
+      const result = this.botService.parseConnectionString(message.text, ctx.from.id.toString());
+      if(result) ctx.reply("Подключение добавлено!");
+      else ctx.reply("Произошла ошибка!");
+    }
+  }
+
+  @On('document')
+  async getFiles(@Message() message: any,  @Ctx() ctx: Context) {
+    
+    
+    if (message.reply_to_message && message.reply_to_message.text.includes('отправьте вашу строку подключения')) {
+
+        const fileId = message.document.file_id;
+        const fileLink = await ctx.telegram.getFileLink(fileId);
+        const response = await axios({
+          method: 'GET',
+          url: fileLink.toString(),
+          responseType: 'stream'
+        });
+
+        const reader  = response.data;
+        let data = '';
+        reader.on('data', (chunk) => {
+          data += chunk.toString(); // преобразование Buffer в строку
+        });
+
+        reader.on('end', () => {
+          console.log(data); // Текст файла доступен здесь после окончания чтения
+          ctx.reply('Файл получен. Производим настройку подключения...');
+          // Тут вы можете использовать данные как вам нужно
+          this.botService.parseConnectionString(data, ctx.from.id.toString());
+
+          ctx.reply("Подключение добавлено!");
+        });
+    
+        reader.on('error', (err) => {
+          console.error('Ошибка при загрузке файла: ', err);
+          ctx.reply('Произошла ошибка при загрузке файла.');
+        });
+
+        // console.log(data)
+        // ctx.reply('Файл получен. Производим настройку подключения...');
+
+    }
+  }
+
+
+    @On('voice')
+    async getVoice(@Message('voice') message: any, @Ctx() ctx: Context) {
+      try {
+        const voice = message;
+        const fileId = voice.file_id;
+        // const fileDetails = await ctx.telegram.getFile(fileId);
+        const fileLink = await ctx.telegram.getFileLink(fileId);
+
+        let blob = await fetch(fileLink.toString()).then(r => r.blob());
+        var formData = new FormData();
+        formData.append('file', blob);
+
+        const response = await axios.post('http://localhost:8000/speech-to-text/', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+
+        const command = this.commands.find(x => similarity(x, response.data.text) >= 0.90);
+
+        switch (command) {
+          case "Создать подключение":
+            case "Подключение":
+            case  "Подключись":
+            case "Подключи базу":
+            ctx.reply('Пожалуйста, отправьте вашу строку подключения в ответном сообщении в виде: host;port;username;password');
+            break;
+          case "Показать статус":
+          case "Покажи статус":
+          case "Статус":
+            ctx.reply('Функция в разработке');
+          // console.log(ctx.from.id)
+          //   const credString = await this.monitoringService.getPostgreCredsByTgId(ctx.from.id.toString());
+          //   console.log(credString)
+          //   const { host, port, username, password } = this.monitoringService.splitCreds(credString);
+        
+          //   let partMetricsReport = await this.monitoringService.getDatabasesReport(host, port, username, password);
+        
+          //   await ctx.reply(JSON.stringify(partMetricsReport));
+
+            break;
+          default: 
+          ctx.reply(`Кажется, Вы сказали: \"${response.data.text}\"`);
+        }
+
+       
+
+      } catch (error) {
+        console.error('Error processing voice message:', error);
+        ctx.reply('Sorry, I could not process your voice message.');
+      }
+    }
+
+    commands = [
+      "Создать подключение",
+      "Подключение",
+      "Подключись",
+      "Подключи базу",
+
+      "Показать статус",
+      "Покажи статус",
+      "Статус",
+
+    ]
+
+
+
+
+
+
+
+    // // @Command('reload'){
+
+    // // }
+
+    // @Command('upload_key')
+    // async executeUploadKey(ctx: Context) {
+    //   ctx.reply('Пожалуйста, отправьте ваш приватный ключ в ответном сообщении.');
+    // }
+
+    // @On('document')
+    // async getDocument(@Ctx() ctx: Context) {
+    //   // Проверить, ожидаем ли мы получение файла
+    //   if (ctx.update && ctx.message.reply_to_message.text.includes('отправьте ваш приватный ключ')) {
+    //     // Получение файла
+    //     const fileId = ctx.update.message.document.file_id;
+    //     const fileLink = await ctx.telegram.getFileLink(fileId);
+
+    //     // Здесь можно скачать файл и сохранить его локально или обработать как нужно
+    //   }
+    // };
+
+  }
 
