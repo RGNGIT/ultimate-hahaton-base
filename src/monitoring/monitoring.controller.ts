@@ -2,6 +2,7 @@ import { Body, Controller, Get, HttpException, Param, Post, Query } from "@nestj
 import { MonitoringService } from "./monitoring.service";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { CommandDto } from "./commands/commands.dto";
+import { SshCommandDto } from "./commands/ssh.commands.dto";
 
 @ApiTags('Мониторинг баз')
 @Controller()
@@ -63,10 +64,17 @@ export class MonitoringController {
   @Post('commands/:tgId')
   async executeCommand(@Param('tgId') tgId: string, @Body() commandDto: CommandDto, @Query('params') params ) {
     const credStrings = await this.monitoringService.getPostgreCredsByHost(tgId, commandDto.host);
-
-    return await this.monitoringService.executeCommand(credStrings, commandDto.command, params);
+    const {host, port, username, password } = this.monitoringService.splitCreds(credStrings);
+    return await this.monitoringService.executeCommand(host, port, username, password, commandDto.command, params);
   }
 
+
+  @ApiOperation({ summary: 'SSH команду' })
+  @ApiResponse({ status: 200 })
+  @Post('ssh')
+  async executeSshCommand(@Body() dto: SshCommandDto ) {
+    return await this.monitoringService.executeSsh(dto);
+  }
 
 
 } 

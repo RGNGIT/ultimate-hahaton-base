@@ -24,15 +24,15 @@ export function statusButton(){
             Markup.button.webApp('📈 Показать статус', 'https://stas-monitor-bot.netlify.app/'),
         ],
         { 
-            columns: 3 
+            columns: 2 
         }
     ).resize();
 }
 
 export function myConnectsButton(connections){
     const connectionButtons = connections.map((connection) =>
-        // Markup.button.callback(`${connection.name}`, `connection_${connection.id}`)
-        Markup.button.webApp(`${connection.name}`, `https://stas-monitor-bot.netlify.app/${connection.id}`)
+        Markup.button.callback(`${connection.name}`, `command_${connection.id}`)
+        //Markup.button.webApp(`${connection.name}`, `https://stas-monitor-bot.netlify.app/${connection.id}`)
     );
     return Markup.inlineKeyboard(
         [

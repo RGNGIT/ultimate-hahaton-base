@@ -67,7 +67,7 @@ export class BotUpdate {
     }
 
 
-  @Hears('Мои подключения')
+  @Hears('📝 Мои подключения')
   async myConnections(ctx: Context) {
 
     const conns = await this.usersService.findAllUserConnections(String(ctx.from.id));
@@ -80,14 +80,14 @@ export class BotUpdate {
     }
   }
 
-  @Hears('Создать подключение')
+  @Hears('➕ Создать подключение')
   async createNewConnection(ctx: Scenes.SceneContext) {
     this.logger.debug('Trying to enter the connectionWizard scene');
     await ctx.scene.enter('connectionWizard');
   }
 
 
-  @Hears('Показать статус')
+  @Hears('📈 Показать статус')
   async getAllHears(ctx: Context) {
     const credString = await this.monitoringService.getPostgreCredsByTgId(1111);
     const { host, port, username, password } = this.monitoringService.splitCreds(credString);
@@ -97,6 +97,25 @@ export class BotUpdate {
     await ctx.reply(JSON.stringify(partMetricsReport));
 
   }
+
+  @Action(/command_(.+)/)
+  async onConnectionSelectAction(@Ctx() ctx) {
+    console.log(ctx.match[1])
+    const connectionId = ctx.match[1];
+
+    const conn = await this.connectionsService.findOne(+connectionId);
+    // // Логика обработки выбора подключения
+
+    await ctx.scene.enter('command_sql_scene', { connection: conn });
+  }
+
+  @Hears('▶️ Выполнить команду на сервере')
+  @Action('SSH_command')
+  async executeSSH(ctx: Scenes.SceneContext) {
+    this.logger.debug('Trying to enter the command_ssh_scene scene');
+    await ctx.scene.enter('command_ssh_scene');
+  }
+
 
   @Action('upload_doc')
   async executeUploadKey(ctx: Scenes.SceneContext) {
@@ -163,7 +182,7 @@ export class BotUpdate {
       var formData = new FormData();
       formData.append('file', blob);
 
-    this.logger.debug('Trying to get speech-to-text');
+      this.logger.debug('Trying to get speech-to-text');
 
       const response = await axios.post('http://localhost:8000/speech-to-text/', formData, {
         headers: {
@@ -175,14 +194,14 @@ export class BotUpdate {
 
       switch (command.command) {
         case "Создать подключение":
-        // case "Подключение":
-        // case "Подключись":
-        // case "Подключи базу":
+          // case "Подключение":
+          // case "Подключись":
+          // case "Подключи базу":
           ctx.reply('Пожалуйста, отправьте вашу строку подключения в ответном сообщении в виде: host;port;username;password');
           break;
         case "Показать статус":
-        // case "Покажи статус":
-        // case "Статус":
+          // case "Покажи статус":
+          // case "Статус":
           ctx.reply('Функция в разработке');
           // console.log(ctx.from.id)
           //   const credString = await this.monitoringService.getPostgreCredsByTgId(ctx.from.id.toString());
@@ -197,7 +216,7 @@ export class BotUpdate {
         case "Помощь":
           break;
         case "Мои подключения":
-        // case "Покажи мои подключения":
+          // case "Покажи мои подключения":
 
           const conns = await this.usersService.findAllUserConnections(String(ctx.from.id));
           if (conns.length > 0) {

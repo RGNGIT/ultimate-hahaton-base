@@ -7,6 +7,7 @@ import { User } from "src/user/entities/user.entity";
 import { Dialect, Sequelize } from "sequelize";
 import { Log } from "src/cronjobs/entities/log.entity";
 import { SshService } from "./ssh.service";
+import { SshCommandDto } from "./commands/ssh.commands.dto";
 
 @Injectable()
 export class MonitoringService {
@@ -18,7 +19,7 @@ export class MonitoringService {
     @Inject(constants.STATUS_REPOSITORY)
     private statusRepository: typeof Status,
     @Inject(constants.LOG_REPOSITORY)
-    private logRepository: typeof Log, 
+    private logRepository: typeof Log,
     private readonly sshService: SshService,
   ) { }
 
@@ -29,13 +30,14 @@ export class MonitoringService {
       const { host, port, username, password } = this.splitCreds(credString.connectionString);
       let shortDbsInfo = await this.getDatabasesReport(host, port, username, password);
       let status = 'OK';
+      let connection = { id: credString.id, name: credString.name };
 
       if (shortDbsInfo == 'error') {
         status = 'ERROR';
         shortDbsInfo = [];
       }
 
-      const dbInfo = { host, status, databases: shortDbsInfo, logs: await this.fetchHostLogs(host) };
+      const dbInfo = { host, status, connection, databases: shortDbsInfo, logs: await this.fetchHostLogs(host) };
       dbInfos.push(dbInfo);
     }
 
@@ -62,7 +64,7 @@ export class MonitoringService {
   async getPostgreCredsByTgId(tgId): Promise<{ id, connectionString }[]> {
     try {
       const user = await this.findUserByTgId(tgId);
-      return user.connectionStrings.map(cs => ({ id: cs.id, connectionString: cs.connectionString }));
+      return user.connectionStrings.map(cs => ({ id: cs.id, name: cs.name, connectionString: cs.connectionString }));
     } catch {
       throw new HttpException('User seems to has no hosts', 404);
     }
@@ -93,11 +95,16 @@ export class MonitoringService {
   }
 
   async fetchHostLogs(host) {
-    const logs = await this.logRepository.findAll({ where: [{ host }] });
+    const logs = await this.logRepository.findAll({ where: [{ host }], order: [['date', 'ASC']] });
     let snapLogs = [];
 
-    for (let i = 0; i < 20; i++) {
-      snapLogs.push(logs[i]);
+    let i = 0;
+    for (const log of logs) {
+      if (i == 20)
+        break;
+
+      snapLogs.push(log);
+      i++;
     }
 
     return snapLogs;
@@ -107,14 +114,16 @@ export class MonitoringService {
     try {
       let fullMetricsReport = JSON.parse(await this.getFullMetricsReport(host, port, username, password) as string);
       let tablespace = fullMetricsReport['tablespaces'].find(f => f.name == 'pg_default');
-      fullMetricsReport = fullMetricsReport['databases'].map(u => ({ state: "active", tablespace, ...u }));
+      let backends = fullMetricsReport['backends'];
+      fullMetricsReport = fullMetricsReport['databases'].map(u => ({ state: "active", tablespace, backends, ...u }));
 
       for (const db of fullMetricsReport as Array<any>) {
         db.charts = await this.findChartsByOid(db.oid);
       }
       // fullMetricsReport[1].state = 'degraded';
       return fullMetricsReport as Array<any>;
-    } catch {
+    } catch(e) {
+      console.log(e);
       return 'error';
     }
   }
@@ -189,37 +198,44 @@ export class MonitoringService {
   }
 
 
-  async executeCommand(credStrings, command: string, params) {
-    
-    const splitCreds = this.splitCreds(credStrings);
+  async executeCommand(host: string, port: number, username: string, password: string,  command: string, params?) {
 
     const sequelizeConfig = {
       dialect: 'postgres' as Dialect,
-      host: splitCreds.host,
-      port: Number(splitCreds.port),
-      username: splitCreds.username,
-      password: splitCreds.password,
+      host,
+      port,
+      username,
+      password,
       // database: database
     }
-    
-
+  
     const sequelize = new Sequelize(sequelizeConfig);
-    const result = await sequelize.query(`SELECT ${command}(${params})`);
+    const result = await sequelize.query(`SELECT ${command}`);
+    console.log(result)
     await sequelize.close();
     return result;
   }
 
 
-  async executeSsh(host, port, username, password){
+  async executeSsh(dto: SshCommandDto){
+    // const host = "194.113.233.98";
+    // const username = "root";
+    // const password = "6H6J6R9gL8PQ";
+    // const command = "uptime";
+
+    // {
+    //   "host": "194.113.233.98",
+    //   "username": "root",
+    //   "password": "6H6J6R9gL8PQ",
+    //   "command": "uptime"
+    // }
   try {
-      const output = await this.sshService.connectAndExecute(
-        `${host}:${port}`, username, password,
-        'sudo service postgresql restart'
-      );
-      return { message: 'Database restarted successfully', output: output };
+      const output = await this.sshService.connectAndExecute(dto.host, dto.username, dto.password, dto.command);
+      return { message: `Command ${dto.command} successfully executed`, output: output };
     } catch (error) {
+      console.log(error);
       // Handle error appropriately
-      return { error: error.message };
+      return { message: error };
     }
   }
 }
