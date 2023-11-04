@@ -53,18 +53,38 @@ export class BotUpdate {
   @Hears('💬 Список голосовых команд')
   async sendVoiceHelp(@Ctx() ctx: Context) {
     let helpText = `*Доступные голосовые команды:*\n\n`;
-    helpText +=  this.voicecommands.map((command) => `- *${command.command}* - ${command.description}`).join(`\n`);
+    helpText += this.voicecommands.map((command) => `- *${command.command}* - ${command.description}`).join(`\n`);
     await ctx.replyWithMarkdown(helpText);
   }
 
   @Command('помощь')
   @Command('help')
   @Hears('😱 Помощь')
-    async sendHelp(@Ctx() ctx: Context) {
-      let helpText = `*Доступные команды:*\n\n`;
-      helpText +=  this.commands.map((command) => `*/${command.command}* - ${command.description}`).join(`\n`);
-      await ctx.replyWithMarkdown(helpText);
-    }
+  async sendHelp(@Ctx() ctx: Context) {
+    let helpText = `*Доступные команды:*\n\n`;
+    helpText += this.commands.map((command) => `*/${command.command}* - ${command.description}`).join(`\n`);
+    await ctx.replyWithMarkdown(helpText);
+
+  }
+
+  @Command('about')
+  async aboutUs(@Ctx() ctx: Context) {
+    await ctx.reply(
+      'Бот разработан командой \"34. Сборная Оренбургской области №1\".\n' +
+      'Над проектом работали: Exem, RGN, SunDust, Airi и Dane4ka \n ' +
+      'Они же СТАС ⭐️ - \"ай, как сложно\"'
+    );
+    await ctx.replyWithMarkdown(
+      'Если у вас возникли вопросы, вы можете связаться с разработчиками:\n'
+    );
+    await ctx.replyWithContact("+79058188101", "Юлия");
+    await ctx.replyWithMarkdown(
+      'или посетите [GitHub проекта - Бот](https://github.com/RGNGIT/ultimate-hahaton-base)\n'
+    );
+    await ctx.replyWithMarkdown(
+      '[GitHub проекта - WebApp](https://github.com/exem1337/stas-monitor-bot)\n'
+    );
+  }
 
 
   @Hears('📝 Мои подключения')
@@ -241,14 +261,18 @@ export class BotUpdate {
       description: "Начать работу",
     },
     {
-        command: "help",
-        description: "Показать справку",
+      command: "help",
+      description: "Показать справку",
     },
     {
-        command: "cancel",
-        description: "Отмена",
+      command: "cancel",
+      description: "Отмена",
     },
-];
+    {
+      command: "about",
+      description: "О разработчиках",
+    },
+  ];
 
 }
 
