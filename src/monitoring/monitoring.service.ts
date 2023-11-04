@@ -29,13 +29,14 @@ export class MonitoringService {
       const { host, port, username, password } = this.splitCreds(credString.connectionString);
       let shortDbsInfo = await this.getDatabasesReport(host, port, username, password);
       let status = 'OK';
+      let connection = { id: credString.id, name: credString.name };
 
       if (shortDbsInfo == 'error') {
         status = 'ERROR';
         shortDbsInfo = [];
       }
 
-      const dbInfo = { host, status, databases: shortDbsInfo, logs: await this.fetchHostLogs(host) };
+      const dbInfo = { host, status, connection, databases: shortDbsInfo, logs: await this.fetchHostLogs(host) };
       dbInfos.push(dbInfo);
     }
 
@@ -62,7 +63,7 @@ export class MonitoringService {
   async getPostgreCredsByTgId(tgId): Promise<{ id, connectionString }[]> {
     try {
       const user = await this.findUserByTgId(tgId);
-      return user.connectionStrings.map(cs => ({ id: cs.id, connectionString: cs.connectionString }));
+      return user.connectionStrings.map(cs => ({ id: cs.id, name: cs.name, connectionString: cs.connectionString }));
     } catch {
       throw new HttpException('User seems to has no hosts', 404);
     }
