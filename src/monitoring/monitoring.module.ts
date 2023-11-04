@@ -4,11 +4,12 @@ import { MonitoringService } from './monitoring.service';
 import { UserService } from 'src/user/user.service';
 import { usersProvider } from '../user/providers/user.providers';
 import { cronjobProvider } from 'src/cronjobs/entities/providers/cronjobs.providers';
+import { SshService } from './ssh.service';
 
 @Module({
   imports: [],
   controllers: [MonitoringController],
-  providers: [MonitoringService, ...usersProvider, ...cronjobProvider],
+  providers: [MonitoringService, SshService, ...usersProvider, ...cronjobProvider],
   exports: [MonitoringService]
 })
 export class MonitoringModule { }

@@ -4,7 +4,7 @@ import constants from "src/common/constants";
 import { Connection } from "src/connections/entities/connection.entity";
 import { Status } from "src/cronjobs/entities/status.entity";
 import { User } from "src/user/entities/user.entity";
-import { UserService } from "src/user/user.service";
+import { SshService } from "./ssh.service";
 
 @Injectable()
 export class MonitoringService {
@@ -12,7 +12,8 @@ export class MonitoringService {
     @Inject(constants.USERS_REPOSITORY)
     private usersRepository: typeof User,
     @Inject(constants.STATUS_REPOSITORY)
-    private statusRepository: typeof Status
+    private statusRepository: typeof Status,
+    private readonly sshService: SshService
   ) { }
 
   async collectDatabaseShortInfos(credStrings) {
@@ -112,4 +113,19 @@ export class MonitoringService {
       });
     });
   }
+
+  async restartPG(host, port, username, password, database) {
+    try {
+      const output = await this.sshService.connectAndExecute(
+        `${host}:${port}`, username, password,
+        'sudo service postgresql restart'
+      );
+      return { message: 'Database restarted successfully', output: output };
+    } catch (error) {
+      // Handle error appropriately
+      return { error: error.message };
+    }
+  }
 }
+
+
