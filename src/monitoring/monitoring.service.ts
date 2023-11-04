@@ -18,7 +18,7 @@ export class MonitoringService {
     @Inject(constants.STATUS_REPOSITORY)
     private statusRepository: typeof Status,
     @Inject(constants.LOG_REPOSITORY)
-    private logRepository: typeof Log, 
+    private logRepository: typeof Log,
     private readonly sshService: SshService,
   ) { }
 
@@ -94,11 +94,16 @@ export class MonitoringService {
   }
 
   async fetchHostLogs(host) {
-    const logs = await this.logRepository.findAll({ where: [{ host }] });
+    const logs = await this.logRepository.findAll({ where: [{ host }], order: [['date', 'ASC']] });
     let snapLogs = [];
-    const count = snapLogs.length <= 20 ? snapLogs.length : 20;
-    for (let i = 0; i < count; i++) {
-      snapLogs.push(logs[i]);
+
+    let i = 0;
+    for (const log of logs) {
+      if (i == 20)
+        break;
+
+      snapLogs.push(log);
+      i++;
     }
 
     return snapLogs;
@@ -191,7 +196,7 @@ export class MonitoringService {
 
 
   async executeCommand(credStrings, command: string, params) {
-    
+
     const splitCreds = this.splitCreds(credStrings);
 
     const sequelizeConfig = {
@@ -202,7 +207,7 @@ export class MonitoringService {
       password: splitCreds.password,
       // database: database
     }
-    
+
 
     const sequelize = new Sequelize(sequelizeConfig);
     const result = await sequelize.query(`SELECT ${command}(${params})`);
@@ -211,8 +216,8 @@ export class MonitoringService {
   }
 
 
-  async executeSsh(host, port, username, password){
-  try {
+  async executeSsh(host, port, username, password) {
+    try {
       const output = await this.sshService.connectAndExecute(
         `${host}:${port}`, username, password,
         'sudo service postgresql restart'

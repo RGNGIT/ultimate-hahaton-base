@@ -31,12 +31,12 @@ export class ConnectionsService {
   async findOne(id: number) {
     const connection = await this.connectionsRepository.findByPk(id);
     const { host, port, username, password } = this.splitCreds(connection.connectionString);
-    
+
     return {
       host,
       port,
       username,
-      password,
+      // password,
       name: connection.name,
     };
   }
