@@ -192,35 +192,19 @@ export class BotUpdate {
 
       const command = this.voicecommands.find(x => similarity(x.command, response.data.text) >= 0.90);
 
-      switch (command.command) {
+      switch (command?.command) {
         case "Создать подключение":
           // case "Подключение":
           // case "Подключись":
           // case "Подключи базу":
           ctx.reply('Пожалуйста, отправьте вашу строку подключения в ответном сообщении в виде: host;port;username;password');
           break;
-        case "Показать статус":
-          // case "Покажи статус":
-          // case "Статус":
-          ctx.reply('Функция в разработке');
-          // console.log(ctx.from.id)
-          //   const credString = await this.monitoringService.getPostgreCredsByTgId(ctx.from.id.toString());
-          //   console.log(credString)
-          //   const { host, port, username, password } = this.monitoringService.splitCreds(credString);
-
-          //   let partMetricsReport = await this.monitoringService.getDatabasesReport(host, port, username, password);
-
-          //   await ctx.reply(JSON.stringify(partMetricsReport));
-
-          break;
         case "Помощь":
           break;
         case "Мои подключения":
           // case "Покажи мои подключения":
-
           const conns = await this.usersService.findAllUserConnections(String(ctx.from.id));
           if (conns.length > 0) {
-
             await ctx.reply('Мои подключения:', myConnectsButton(conns))
           }
           else {
@@ -230,17 +214,11 @@ export class BotUpdate {
         default:
           ctx.reply(`Кажется, Вы сказали: \"${response.data.text}\"`);
       }
-
-
-
     } catch (error) {
       console.error('Error processing voice message:', error);
       ctx.reply('Sorry, I could not process your voice message.');
     }
   }
-
-
-
 
   voicecommands = [
     {
