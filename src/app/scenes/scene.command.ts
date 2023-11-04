@@ -29,7 +29,7 @@ export class SQLCommandScene {
     const sqlCommand = message.text;
     const initialParams = ctx.session.__scenes.state;
     try {
-      await ctx.reply(`Выполняю SQL команду: SELECT ${sqlCommand}`);
+      await ctx.reply(`Выполняю SQL команду: ${sqlCommand}`);
       const result = await this.monitoringService.executeCommand(
         initialParams['connection']['host'],
         initialParams['connection']['port'],
@@ -40,7 +40,7 @@ export class SQLCommandScene {
       await ctx.reply(`Результат: ${JSON.stringify(result[0])}`);
     }
     catch (error) {
-      await ctx.reply("Ошибка выполнения, неверная команда")
+      await ctx.reply(`Ошибка выполнения: ${error}`)
     }
     // TODO: выполнение SQL команды
 

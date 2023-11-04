@@ -41,6 +41,20 @@ export class ConnectionsService {
     };
   }
 
+  //Нужен пароль для подключения к бдшке через сервер
+  async getOne(id: number) {
+    const connection = await this.connectionsRepository.findByPk(id);
+    const { host, port, username, password } = this.splitCreds(connection.connectionString);
+
+    return {
+      host,
+      port,
+      username,
+      password,
+      name: connection.name,
+    };
+  }
+
 
   splitCreds(credString): { host, port, username, password } {
     const splitCreds = credString.split(';');

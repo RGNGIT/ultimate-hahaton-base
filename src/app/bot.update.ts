@@ -30,7 +30,7 @@ export class BotUpdate {
 
     const user = await this.usersService.create({ telegram_id, telegram_chat_id });
 
-    ctx.reply('Вас приветствует наш сервис!', statusButton());
+    ctx.reply(`Привет, ${ctx.from.username}!`, statusButton());
     const userConnections = await this.usersService.findAllUserConnections(telegram_id);
 
     if (userConnections.length > 0) {
@@ -89,10 +89,8 @@ export class BotUpdate {
 
   @Hears('📝 Мои подключения')
   async myConnections(ctx: Context) {
-
     const conns = await this.usersService.findAllUserConnections(String(ctx.from.id));
     if (conns.length > 0) {
-
       await ctx.reply('Мои подключения:', myConnectsButton(conns))
     }
     else {
@@ -107,23 +105,23 @@ export class BotUpdate {
   }
 
 
-  @Hears('📈 Показать статус')
-  async getAllHears(ctx: Context) {
-    const credString = await this.monitoringService.getPostgreCredsByTgId(1111);
-    const { host, port, username, password } = this.monitoringService.splitCreds(credString);
+  // @Hears('📈 Показать статус')
+  // async getAllHears(ctx: Context) {
+  //   const credString = await this.monitoringService.getPostgreCredsByTgId(1111);
+  //   const { host, port, username, password } = this.monitoringService.splitCreds(credString);
 
-    let partMetricsReport = await this.monitoringService.getDatabasesReport(host, port, username, password);
+  //   let partMetricsReport = await this.monitoringService.getDatabasesReport(host, port, username, password);
 
-    await ctx.reply(JSON.stringify(partMetricsReport));
+  //   await ctx.reply(JSON.stringify(partMetricsReport));
 
-  }
+  // }
 
   @Action(/command_(.+)/)
   async onConnectionSelectAction(@Ctx() ctx) {
     console.log(ctx.match[1])
     const connectionId = ctx.match[1];
 
-    const conn = await this.connectionsService.findOne(+connectionId);
+    const conn = await this.connectionsService.getOne(+connectionId);
     // // Логика обработки выбора подключения
 
     await ctx.scene.enter('command_sql_scene', { connection: conn });
