@@ -50,6 +50,16 @@ export class BotUpdate {
     await ctx.scene.enter('connectionWizard');
   }
 
+  @Command('voicehelp')
+  @Hears('Список голосовых команд')
+  async sendHelp(@Ctx() ctx: Context) {
+    console.log("kodk")
+    const message = `Доступные голосовые команды:\n- ${this.commands.join('\n- ')}`;
+    await ctx.reply(message);
+  }
+
+ 
+
   @Hears('Мои подключения')
   async myConnections(ctx: Context) {
 
@@ -82,21 +92,12 @@ export class BotUpdate {
 
   }
 
-
-
-  // @On('text')
-  // async getMessages(@Message('text') message: string, @Ctx() ctx: Context) {
-
-  //   await ctx.reply("Привет! Чтобы посмотреть статус базы данных, переходи по кнопке", statusButton())
-  // }
-
   @Action('upload_doc')
   async executeUploadKey(ctx: Scenes.SceneContext) {
     // ctx.reply('Пожалуйста, отправьте вашу строку подключения в ответном сообщении в виде: host;port;username;password');
     this.logger.debug('Trying to enter the connection scene');
     await ctx.scene.enter('my_scene');
   }
-
 
 
   @On('text')
@@ -110,8 +111,6 @@ export class BotUpdate {
 
   @On('document')
   async getFiles(@Message() message: any, @Ctx() ctx: Context) {
-
-
     if (message.reply_to_message && message.reply_to_message.text.includes('отправьте вашу строку подключения')) {
 
       const fileId = message.document.file_id;
@@ -171,14 +170,14 @@ export class BotUpdate {
 
       switch (command) {
         case "Создать подключение":
-        case "Подключение":
-        case "Подключись":
-        case "Подключи базу":
+        // case "Подключение":
+        // case "Подключись":
+        // case "Подключи базу":
           ctx.reply('Пожалуйста, отправьте вашу строку подключения в ответном сообщении в виде: host;port;username;password');
           break;
         case "Показать статус":
-        case "Покажи статус":
-        case "Статус":
+        // case "Покажи статус":
+        // case "Статус":
           ctx.reply('Функция в разработке');
           // console.log(ctx.from.id)
           //   const credString = await this.monitoringService.getPostgreCredsByTgId(ctx.from.id.toString());
@@ -192,7 +191,7 @@ export class BotUpdate {
           break;
 
         case "Мои подключения":
-        case "Покажи мои подключения":
+        // case "Покажи мои подключения":
 
           const conns = await this.usersService.findAllUserConnections(String(ctx.from.id));
           console.log(conns);
@@ -217,32 +216,19 @@ export class BotUpdate {
   }
 
 
-  
+
 
   commands = [
     "Создать подключение",
-    "Подключение",
-    "Подключись",
-    "Подключи базу",
-
+    // "Подключение",
+    // "Подключись",
+    // "Подключи базу",
     "Показать статус",
-    "Покажи статус",
-    "Статус",
+    // "Покажи статус",
+    // "Статус",
     "Мои подключения",
-    "Покажи мои подключения"
-
+    // "Покажи мои подключения"
   ]
-
-
-
-
-
-
-
-  // // @Command('reload'){
-
-  // // }
-
 
 }
 
