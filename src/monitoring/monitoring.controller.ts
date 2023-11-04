@@ -46,16 +46,16 @@ export class MonitoringController {
   }
 
 
-    // Все хосты юзера из таблицы connections
-    @ApiOperation({ summary: 'Перезапуск бд' })
-    @ApiResponse({ status: 200 })
-    @Post('database/:tgId')
-    async reloadDB(@Param('tgId') tgId: string, @Body('name') name: string   ) {
-      const credStrings = await this.monitoringService.getPostgreCredsByName(name);
+  // Все хосты юзера из таблицы connections
+  @ApiOperation({ summary: 'Перезапуск бд' })
+  @ApiResponse({ status: 200 })
+  @Post('database/:tgId')
+  async reloadDB(@Param('tgId') tgId: string, @Body('name') name: string) {
+    const credStrings = await this.monitoringService.getPostgreCredsByName(name);
 
-      return  await this.monitoringService.restartPG(credStrings);
-    }
-  
-  
+    return await this.monitoringService.restartPG(credStrings);
+  }
+
+
 
 } 
