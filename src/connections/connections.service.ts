@@ -44,6 +44,8 @@ export class ConnectionsService {
 
   splitCreds(credString): { host, port, username, password } {
     const splitCreds = credString.split(';');
+    
+
     return { host: splitCreds[0], port: splitCreds[1], username: splitCreds[2], password: splitCreds[3] };
   }
 
