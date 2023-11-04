@@ -29,8 +29,9 @@ export class ConnectionsService {
   }
 
   async findOne(id: number) {
-    const connection = await this.connectionsRepository.findOne({ where: { id } });
-    const { host, port, username, password } = this.splitCreds(connection);
+    const connection = await this.connectionsRepository.findByPk(id);
+    const { host, port, username, password } = this.splitCreds(connection.connectionString);
+    
     return {
       host,
       port,
@@ -60,7 +61,7 @@ export class ConnectionsService {
       }
       if(i != 3) connectionString += ';';
     }
-    
+
     // const connectionString = dto.host ? dto.host : oldValues[0] + ';' + dto.port ? dto.port : oldValues[1] + ';' + dto.username ? dto.username : oldValues[2] + ';' + dto.password ? dto.password : oldValues[3];
 
     await this.connectionsRepository.update({ connectionString, ...dto }, { where: { id } });
