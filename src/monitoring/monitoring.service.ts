@@ -25,8 +25,15 @@ export class MonitoringService {
 
     for (const credString of credStrings) {
       const { host, port, username, password } = this.splitCreds(credString.connectionString);
-      const shortDbsInfo = await this.getDatabasesReport(host, port, username, password);
-      const dbInfo = { host, databases: shortDbsInfo, logs: await this.fetchHostLogs(host) };
+      let shortDbsInfo = await this.getDatabasesReport(host, port, username, password);
+      let status = 'OK';
+
+      if (shortDbsInfo == 'error') {
+        status = 'ERROR';
+        shortDbsInfo = [];
+      }
+
+      const dbInfo = { host, status, databases: shortDbsInfo, logs: await this.fetchHostLogs(host) };
       dbInfos.push(dbInfo);
     }
 
@@ -39,14 +46,14 @@ export class MonitoringService {
 
       for (const credString of credStrings) {
         const { host, port, username, password } = this.splitCreds(credString.connectionString);
-        const fullDbsInfo = await this.getFullMetricsReport(host, port, username, password);
+        const fullDbsInfo = JSON.parse(await this.getFullMetricsReport(host, port, username, password) as string);
         const dbInfo = { host, info: fullDbsInfo, logs: await this.fetchHostLogs(host) };
         dbInfos.push(dbInfo);
       }
 
       return dbInfos;
     } catch {
-      return null;
+      return 'error';
     }
   }
 
@@ -66,7 +73,7 @@ export class MonitoringService {
       const connects = user.connectionStrings.map(cs => ({ connectionString: cs.connectionString }));
 
       for (let item of connects) {
-        const { host, port, username, password } = this.splitCreds(item.connectionString);
+        const { host } = this.splitCreds(item.connectionString);
         if (host == myhost)
           return item.connectionString;
       }
@@ -96,7 +103,7 @@ export class MonitoringService {
 
   async getDatabasesReport(host, port, username, password) {
     try {
-      let fullMetricsReport = await this.getFullMetricsReport(host, port, username, password);
+      let fullMetricsReport = JSON.parse(await this.getFullMetricsReport(host, port, username, password) as string);
       let tablespace = fullMetricsReport['tablespaces'].find(f => f.name == 'pg_default');
       fullMetricsReport = fullMetricsReport['databases'].map(u => ({ state: "active", tablespace, ...u }));
 
@@ -106,7 +113,7 @@ export class MonitoringService {
       // fullMetricsReport[1].state = 'degraded';
       return fullMetricsReport as Array<any>;
     } catch {
-      return null;
+      return 'error';
     }
   }
 
