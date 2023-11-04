@@ -62,10 +62,10 @@ export class MonitoringController {
   @ApiOperation({ summary: 'Выполнить команду' })
   @ApiResponse({ status: 200 })
   @Post('commands/:tgId')
-  async executeCommand(@Param('tgId') tgId: string, @Body() commandDto: CommandDto, @Query('params') params ) {
+  async executeCommand(@Param('tgId') tgId: string, @Body() commandDto: CommandDto ) {
     const credStrings = await this.monitoringService.getPostgreCredsByHost(tgId, commandDto.host);
     const {host, port, username, password } = this.monitoringService.splitCreds(credStrings);
-    return await this.monitoringService.executeCommand(host, port, username, password, commandDto.command, params);
+    return await this.monitoringService.executeCommand(host, port, username, password, commandDto.command);
   }
 
 

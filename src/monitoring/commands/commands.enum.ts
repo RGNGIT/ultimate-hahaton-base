@@ -3,5 +3,5 @@ export enum Commands {
     // pg_stop_backup = "SELECT pg_stop_backup()",
     pg_reload_conf = "pg_reload_conf",
     pg_rotate_logfile = "pg_rotate_logfile",
-    pg_last_xact_replay_timestamp = "pg_last_xact_replay_timestamp", //Получает отметку времени последней транзакции, воспроизведённой при восстановлении. 
+    pg_export_snapshot = "pg_export_snapshot" //Сохраняет снимок текущего состояния и возвращает его идентификатор
 }

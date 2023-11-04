@@ -198,7 +198,7 @@ export class MonitoringService {
   }
 
 
-  async executeCommand(host: string, port: number, username: string, password: string,  command: string, params?) {
+  async executeCommand(host: string, port: number, username: string, password: string,  command: string) {
 
     const sequelizeConfig = {
       dialect: 'postgres' as Dialect,
@@ -210,7 +210,7 @@ export class MonitoringService {
     }
   
     const sequelize = new Sequelize(sequelizeConfig);
-    const result = await sequelize.query(`SELECT ${command}`);
+    const result = await sequelize.query(`${command}`);
     console.log(result)
     await sequelize.close();
     return result;
