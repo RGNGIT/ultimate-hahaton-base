@@ -32,7 +32,7 @@ export class CronjobsService {
   // takingOrders() {
   //     console.log("Delicious cakes is still taking orders")
   // }
-  // @Interval(10000)
+  @Interval(60000)
   async monitorChronos() {
     const connections = await this.connectionsService.findAll();
 
@@ -46,7 +46,7 @@ export class CronjobsService {
     }
   }
 
-  @Interval(15000)
+  @Interval(15000000)
   async monitorDatabases() {
     try {
       console.log('Мониторинг баз данных...');

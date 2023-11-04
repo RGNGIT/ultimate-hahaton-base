@@ -5,6 +5,7 @@ import { Connection } from "src/connections/entities/connection.entity";
 import { Status } from "src/cronjobs/entities/status.entity";
 import { User } from "src/user/entities/user.entity";
 import { Dialect, Sequelize } from "sequelize";
+import { Log } from "src/cronjobs/entities/log.entity";
 
 @Injectable()
 export class MonitoringService {
@@ -15,6 +16,8 @@ export class MonitoringService {
     private connectionsRepository: typeof Connection,
     @Inject(constants.STATUS_REPOSITORY)
     private statusRepository: typeof Status,
+    @Inject(constants.LOG_REPOSITORY)
+    private logRepository: typeof Log
   ) { }
 
   async collectDatabaseShortInfos(credStrings) {
@@ -23,7 +26,7 @@ export class MonitoringService {
     for (const credString of credStrings) {
       const { host, port, username, password } = this.splitCreds(credString.connectionString);
       const shortDbsInfo = await this.getDatabasesReport(host, port, username, password);
-      const dbInfo = { host, databases: shortDbsInfo };
+      const dbInfo = { host, databases: shortDbsInfo, logs: await this.fetchHostLogs(host) };
       dbInfos.push(dbInfo);
     }
 
@@ -36,7 +39,7 @@ export class MonitoringService {
     for (const credString of credStrings) {
       const { host, port, username, password } = this.splitCreds(credString.connectionString);
       const fullDbsInfo = await this.getFullMetricsReport(host, port, username, password);
-      const dbInfo = { host, info: fullDbsInfo };
+      const dbInfo = { host, info: fullDbsInfo, logs: await this.fetchHostLogs(host) };
       dbInfos.push(dbInfo);
     }
 
@@ -76,10 +79,13 @@ export class MonitoringService {
     return { host: splitCreds[0], port: splitCreds[1], username: splitCreds[2], password: splitCreds[3] };
   }
 
+  async fetchHostLogs(host) {
+    return await this.logRepository.findAll({ where: [{ host }] });
+  }
+
   async getDatabasesReport(host, port, username, password) {
     let fullMetricsReport = await this.getFullMetricsReport(host, port, username, password);
     let tablespace = fullMetricsReport['tablespaces'].find(f => f.name == 'pg_default');
-    // Хуйня
     fullMetricsReport = fullMetricsReport['databases'].map(u => ({ state: "active", tablespace, ...u }));
 
     for (const db of fullMetricsReport as Array<any>) {
@@ -97,7 +103,10 @@ export class MonitoringService {
   findDbByOid(databases, oid) {
     for (const host of databases) {
       for (const db of host.databases) {
-        if (db.oid == oid) return db;
+        if (db.oid == oid) {
+          db.hostLogs = host.logs; 
+          return db;
+        } 
       }
     }
 
@@ -134,8 +143,8 @@ export class MonitoringService {
     });
   }
 
-  async restartPG( credStrings ) {
-     // try {
+  async restartPG(credStrings) {
+    // try {
     //   const output = await this.sshService.connectAndExecute(
     //     `${host}:${port}`, username, password,
     //     'sudo service postgresql restart'
