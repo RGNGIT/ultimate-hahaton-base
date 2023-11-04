@@ -32,8 +32,6 @@ export function myConnectsButton(connections){
         // Markup.button.callback(`${connection.name}`, `connection_${connection.id}`)
         Markup.button.webApp(`${connection.name}`, `https://stas-monitor-bot.netlify.app/`)
     );
-
-    console.log(connectionButtons)
     return Markup.inlineKeyboard(
         [
             ...connectionButtons,

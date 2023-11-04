@@ -53,7 +53,6 @@ export class BotUpdate {
   @Command('voicehelp')
   @Hears('Список голосовых команд')
   async sendHelp(@Ctx() ctx: Context) {
-    console.log("kodk")
     const message = `Доступные голосовые команды:\n- ${this.commands.join('\n- ')}`;
     await ctx.reply(message);
   }
@@ -64,7 +63,6 @@ export class BotUpdate {
   async myConnections(ctx: Context) {
 
     const conns = await this.usersService.findAllUserConnections(String(ctx.from.id));
-    console.log(conns);
     if (conns.length > 0) {
 
       await ctx.reply('Мои подключения:', myConnectsButton(conns))
@@ -128,7 +126,7 @@ export class BotUpdate {
       });
 
       reader.on('end', () => {
-        console.log(data); // Текст файла доступен здесь после окончания чтения
+        // Текст файла доступен здесь после окончания чтения
         ctx.reply('Файл получен. Производим настройку подключения...');
         // Тут вы можете использовать данные как вам нужно
         this.botService.parseConnectionString(data, ctx.from.id.toString());
@@ -141,7 +139,7 @@ export class BotUpdate {
         ctx.reply('Произошла ошибка при загрузке файла.');
       });
 
-      // console.log(data)
+
       // ctx.reply('Файл получен. Производим настройку подключения...');
 
     }
@@ -159,6 +157,8 @@ export class BotUpdate {
       let blob = await fetch(fileLink.toString()).then(r => r.blob());
       var formData = new FormData();
       formData.append('file', blob);
+
+    this.logger.debug('Trying to get speech-to-text');
 
       const response = await axios.post('http://localhost:8000/speech-to-text/', formData, {
         headers: {
@@ -194,7 +194,6 @@ export class BotUpdate {
         // case "Покажи мои подключения":
 
           const conns = await this.usersService.findAllUserConnections(String(ctx.from.id));
-          console.log(conns);
           if (conns.length > 0) {
 
             await ctx.reply('Мои подключения:', myConnectsButton(conns))
