@@ -17,7 +17,8 @@ export function statusButton(){
     return Markup.keyboard(
         [
             Markup.button.webApp('Показать статус', 'https://stas-monitor-bot.netlify.app/'),
-            Markup.button.webApp('Создать подключение',  'https://stas-monitor-bot.netlify.app/add'),
+            Markup.button.callback('Создать подключение',  'connect'),
+            Markup.button.callback('Мои подключения',  'myConnects'),
         ],
         { columns: 2 }
     ).resize();

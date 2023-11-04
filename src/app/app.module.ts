@@ -13,9 +13,14 @@ import { MonitoringModule } from 'src/monitoring/monitoring.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronjobsModule } from 'src/cronjobs/cronjobs.module';
 import { BotService } from './bot.service';
+import { Scenes } from 'telegraf';
+import { ConnectionWizardScene } from './scenes/scene.wizard';
+import { MyScene } from './scenes/scene';
+
 
 
 const sessions = new LocalSession({ database: 'session_db.json' })
+
 
 @Module({
 
@@ -42,10 +47,12 @@ const sessions = new LocalSession({ database: 'session_db.json' })
     }]),
     TelegrafModule.forRoot({
       token: botToken,
-      middlewares: [sessions.middleware()]
+      middlewares: [sessions.middleware()],
+      //  include: [BotService, ConnectionWizardScene],
+      
     }),
     ScheduleModule.forRoot(),
   ],
-  providers: [AppService, BotUpdate, BotService],
+  providers: [AppService, BotUpdate, BotService, MyScene, ConnectionWizardScene],
 })
 export class AppModule { }

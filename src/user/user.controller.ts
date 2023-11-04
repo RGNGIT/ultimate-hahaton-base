@@ -29,7 +29,7 @@ export class UserController {
   @ApiOperation({summary:'Получить подключения пользователя'})
   @ApiResponse({status:200, type: [Connection]})
   @Get('connections/:id')
-  async findAllUserConnections(@Param('id') id: number) {
+  async findAllUserConnections(@Param('id') id: string) {
     return await this.userService.findAllUserConnections(id);
   }
 

@@ -24,8 +24,8 @@ export class UserService {
         return user;
       }
 
-  async findAllUserConnections(id: number): Promise<Connection[]> {
-    const user = await this.usersRepository.findOne({ where: { id }, include: { model: Connection } });
+  async findAllUserConnections(telegram_id: string): Promise<Connection[]> {
+    const user = await this.usersRepository.findOne({ where: { telegram_id }, include: { model: Connection } });
     return user.connectionStrings;
   }
 
