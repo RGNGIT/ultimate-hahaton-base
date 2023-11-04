@@ -25,8 +25,6 @@ export class BotUpdate {
 
   @Start()
   async startCommand(ctx: Context) {
-    // await ctx.reply('Вас приветствует наш сервис!', actionButtons());
-    // await ctx.reply('Шо делаем?', mainButton());
     const telegram_id = String(ctx.from.id);
     const telegram_chat_id = String(ctx.chat.id);
 
@@ -51,13 +49,23 @@ export class BotUpdate {
   }
 
   @Command('voicehelp')
-  @Hears('Список голосовых команд')
-  async sendHelp(@Ctx() ctx: Context) {
-    const message = `Доступные голосовые команды:\n- ${this.commands.join('\n- ')}`;
-    await ctx.reply(message);
+  @Command('голос')
+  @Hears('💬 Список голосовых команд')
+  async sendVoiceHelp(@Ctx() ctx: Context) {
+    let helpText = `*Доступные голосовые команды:*\n\n`;
+    helpText +=  this.voicecommands.map((command) => `- *${command.command}* - ${command.description}`).join(`\n`);
+    await ctx.replyWithMarkdown(helpText);
   }
 
- 
+  @Command('помощь')
+  @Command('help')
+  @Hears('😱 Помощь')
+    async sendHelp(@Ctx() ctx: Context) {
+      let helpText = `*Доступные команды:*\n\n`;
+      helpText +=  this.commands.map((command) => `*/${command.command}* - ${command.description}`).join(`\n`);
+      await ctx.replyWithMarkdown(helpText);
+    }
+
 
   @Hears('Мои подключения')
   async myConnections(ctx: Context) {
@@ -139,9 +147,6 @@ export class BotUpdate {
         ctx.reply('Произошла ошибка при загрузке файла.');
       });
 
-
-      // ctx.reply('Файл получен. Производим настройку подключения...');
-
     }
   }
 
@@ -166,9 +171,9 @@ export class BotUpdate {
         }
       });
 
-      const command = this.commands.find(x => similarity(x, response.data.text) >= 0.90);
+      const command = this.voicecommands.find(x => similarity(x.command, response.data.text) >= 0.90);
 
-      switch (command) {
+      switch (command.command) {
         case "Создать подключение":
         // case "Подключение":
         // case "Подключись":
@@ -189,7 +194,8 @@ export class BotUpdate {
           //   await ctx.reply(JSON.stringify(partMetricsReport));
 
           break;
-
+        case "Помощь":
+          break;
         case "Мои подключения":
         // case "Покажи мои подключения":
 
@@ -217,17 +223,35 @@ export class BotUpdate {
 
 
 
-  commands = [
-    "Создать подключение",
-    // "Подключение",
-    // "Подключись",
-    // "Подключи базу",
-    "Показать статус",
-    // "Покажи статус",
-    // "Статус",
-    "Мои подключения",
-    // "Покажи мои подключения"
+  voicecommands = [
+    {
+      command: "Создать подключение",
+      description: "Добавить подключение через строку подключения",
+    },
+    {
+      command: "Мои подключения",
+      description: "Вывести подключения",
+    },
+    {
+      command: "Помощь",
+      description: "Окошко с подсказками",
+    },
   ]
+
+  commands = [
+    {
+      command: "start",
+      description: "Начать работу",
+    },
+    {
+        command: "help",
+        description: "Показать справку",
+    },
+    {
+        command: "cancel",
+        description: "Отмена",
+    },
+];
 
 }
 

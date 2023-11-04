@@ -27,7 +27,8 @@ export class MyScene {
         ctx.scene.leave();
     }   
     else {
-        ctx.reply('Пожалуйста, отправьте вашу строку подключения в ответном сообщении в виде: host;port;username;password');
+      ctx.reply('Для отмены выполните команду /cancel');
+      ctx.reply('Пожалуйста, отправьте вашу строку подключения в ответном сообщении в виде: host;port;username;password');
     }
   }
 
