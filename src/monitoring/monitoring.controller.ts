@@ -3,6 +3,7 @@ import { MonitoringService } from "./monitoring.service";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { CommandDto } from "./commands/commands.dto";
 import { SshCommandDto } from "./commands/ssh.commands.dto";
+import { decrypt } from "src/common/encrypt";
 
 @ApiTags('Мониторинг баз')
 @Controller()
@@ -23,6 +24,7 @@ export class MonitoringController {
   async databaseList(@Param('tgId') tgId: string) {
     console.log("Я тута " + tgId);
     const credStrings = await this.monitoringService.getPostgreCredsByTgId(tgId);
+    console.log(credStrings);
     return this.monitoringService.collectDatabaseShortInfos(credStrings);
   }
   @ApiOperation({ summary: 'Отчеты по одной бд по имени' })
@@ -44,7 +46,7 @@ export class MonitoringController {
   @Post('usersHosts/:tgId')
   async hostsList(@Param('tgId') tgId: string) {
     const credStrings = await this.monitoringService.getPostgreCredsByTgId(tgId);
-    return credStrings.map(cs => ({ id: cs.id, host: cs.connectionString.split(';')[0] }));
+    return credStrings.map(cs => ({ id: cs.id, host: decrypt(cs.connectionString).split(';')[0] }));
   }
 
 
@@ -62,9 +64,9 @@ export class MonitoringController {
   @ApiOperation({ summary: 'Выполнить команду' })
   @ApiResponse({ status: 200 })
   @Post('commands/:tgId')
-  async executeCommand(@Param('tgId') tgId: string, @Body() commandDto: CommandDto ) {
+  async executeCommand(@Param('tgId') tgId: string, @Body() commandDto: CommandDto) {
     const credStrings = await this.monitoringService.getPostgreCredsByHost(tgId, commandDto.host);
-    const {host, port, username, password } = this.monitoringService.splitCreds(credStrings);
+    const { host, port, username, password } = this.monitoringService.splitCreds(credStrings);
     return await this.monitoringService.executeCommand(host, port, username, password, commandDto.command);
   }
 
@@ -72,7 +74,7 @@ export class MonitoringController {
   @ApiOperation({ summary: 'SSH команду' })
   @ApiResponse({ status: 200 })
   @Post('ssh')
-  async executeSshCommand(@Body() dto: SshCommandDto ) {
+  async executeSshCommand(@Body() dto: SshCommandDto) {
     return await this.monitoringService.executeSsh(dto);
   }
 

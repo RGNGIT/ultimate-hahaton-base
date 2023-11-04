@@ -4,6 +4,7 @@ import { UpdateConnectionDto } from './dto/update-connection.dto';
 import { Connection } from './entities/connection.entity';
 import constants from 'src/common/constants';
 import { User } from 'src/user/entities/user.entity';
+import { decrypt, encrypt } from 'src/common/encrypt';
 
 @Injectable()
 export class ConnectionsService {
@@ -19,7 +20,7 @@ export class ConnectionsService {
     const connectionString = dto.host + ';' + dto.port + ';' + dto.username + ';' + dto.password;
     const user = await this.userRepository.findOne({ where: [{ telegram_id: dto.telegram_id }] });
     const newDto = { ...dto, user_id: user.id };
-    const conn = await this.connectionsRepository.create({ connectionString, ...newDto });
+    const conn = await this.connectionsRepository.create({ connectionString: encrypt(connectionString), ...newDto });
     return conn;
   }
 
@@ -30,7 +31,7 @@ export class ConnectionsService {
 
   async findOne(id: number) {
     const connection = await this.connectionsRepository.findByPk(id);
-    const { host, port, username, password } = this.splitCreds(connection.connectionString);
+    const { host, port, username, password } = this.splitCreds(decrypt(connection.connectionString));
 
     return {
       host,
@@ -50,7 +51,7 @@ export class ConnectionsService {
   }
 
   async update(id: number, dto: UpdateConnectionDto) {
-    let oldValues = ((await this.connectionsRepository.findByPk(id)).connectionString).split(';');
+    let oldValues = (decrypt((await this.connectionsRepository.findByPk(id)).connectionString)).split(';');
     let newValues = [dto.host, dto.port, dto.username, dto.password];
 
     let connectionString = "";
@@ -66,7 +67,7 @@ export class ConnectionsService {
 
     // const connectionString = dto.host ? dto.host : oldValues[0] + ';' + dto.port ? dto.port : oldValues[1] + ';' + dto.username ? dto.username : oldValues[2] + ';' + dto.password ? dto.password : oldValues[3];
 
-    await this.connectionsRepository.update({ connectionString, ...dto }, { where: { id } });
+    await this.connectionsRepository.update({ connectionString: encrypt(connectionString), ...dto }, { where: { id } });
     const connection = await this.connectionsRepository.findByPk(id);
     return connection;
   }

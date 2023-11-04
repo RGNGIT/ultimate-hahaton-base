@@ -21,6 +21,16 @@
     {
       "id": "994607303:994607303",
       "data": {
+        "__scenes": {
+          "current": "connectionWizard",
+          "state": {},
+          "cursor": 1
+        }
+      }
+    },
+    {
+      "id": "521670921:521670921",
+      "data": {
         "__scenes": {}
       }
     }

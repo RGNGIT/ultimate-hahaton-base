@@ -9,6 +9,7 @@ import { MonitoringService } from 'src/monitoring/monitoring.service';
 import { Status } from './entities/status.entity';
 import constants from "../common/constants";
 import { Log, LogType } from './entities/log.entity';
+import { decrypt } from 'src/common/encrypt';
 
 @Injectable()
 export class CronjobsService {
@@ -37,7 +38,7 @@ export class CronjobsService {
     const connections = await this.connectionsService.findAll();
 
     for (const connection of connections) {
-      const splitCreds = connection.connectionString.split(';');
+      const splitCreds = decrypt(connection.connectionString).split(';');
       const databases = await this.monitoringService.getDatabasesReport(splitCreds[0], splitCreds[1], splitCreds[2], splitCreds[3]);
 
       for (const db of databases) {
@@ -61,7 +62,7 @@ export class CronjobsService {
   }
 
   private async checkDatabase(connection: Connection) {
-    const splitCreds = connection.connectionString.split(';');
+    const splitCreds = decrypt(connection.connectionString).split(';');
 
     try {
       const sequelizeConfig = {

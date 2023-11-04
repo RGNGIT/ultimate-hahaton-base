@@ -8,6 +8,7 @@ import { Dialect, Sequelize } from "sequelize";
 import { Log } from "src/cronjobs/entities/log.entity";
 import { SshService } from "./ssh.service";
 import { SshCommandDto } from "./commands/ssh.commands.dto";
+import { decrypt } from "src/common/encrypt";
 
 @Injectable()
 export class MonitoringService {
@@ -27,7 +28,7 @@ export class MonitoringService {
     const dbInfos = [];
 
     for (const credString of credStrings) {
-      const { host, port, username, password } = this.splitCreds(credString.connectionString);
+      const { host, port, username, password } = this.splitCreds(decrypt(credString.connectionString));
       let shortDbsInfo = await this.getDatabasesReport(host, port, username, password);
       let status = 'OK';
       let connection = { id: credString.id, name: credString.name };
@@ -49,7 +50,7 @@ export class MonitoringService {
       const dbInfos = [];
 
       for (const credString of credStrings) {
-        const { host, port, username, password } = this.splitCreds(credString.connectionString);
+        const { host, port, username, password } = this.splitCreds(decrypt(credString.connectionString));
         const fullDbsInfo = JSON.parse(await this.getFullMetricsReport(host, port, username, password) as string);
         const dbInfo = { host, info: fullDbsInfo, logs: await this.fetchHostLogs(host) };
         dbInfos.push(dbInfo);
@@ -64,7 +65,7 @@ export class MonitoringService {
   async getPostgreCredsByTgId(tgId): Promise<{ id, connectionString }[]> {
     try {
       const user = await this.findUserByTgId(tgId);
-      return user.connectionStrings.map(cs => ({ id: cs.id, name: cs.name, connectionString: cs.connectionString }));
+      return user.connectionStrings.map(cs => ({ id: cs.id, name: cs.name, connectionString: decrypt(cs.connectionString) }));
     } catch {
       throw new HttpException('User seems to has no hosts', 404);
     }
@@ -74,7 +75,7 @@ export class MonitoringService {
     try {
 
       const user = await this.findUserByTgId(tgId);
-      const connects = user.connectionStrings.map(cs => ({ connectionString: cs.connectionString }));
+      const connects = user.connectionStrings.map(cs => ({ connectionString: decrypt(cs.connectionString) }));
 
       for (let item of connects) {
         const { host } = this.splitCreds(item.connectionString);
