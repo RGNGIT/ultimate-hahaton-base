@@ -32,7 +32,7 @@ export class CronjobsService {
   // takingOrders() {
   //     console.log("Delicious cakes is still taking orders")
   // }
-  // @Interval(60000)
+  @Interval(300000)
   async monitorChronos() {
     const connections = await this.connectionsService.findAll();
 
@@ -46,7 +46,7 @@ export class CronjobsService {
     }
   }
 
-  // @Interval(30000)
+  @Interval(300000)
   async monitorDatabases() {
     try {
       console.log('Мониторинг баз данных...');
@@ -76,6 +76,7 @@ export class CronjobsService {
       const sequelize = new Sequelize(sequelizeConfig);
       await sequelize.query("SELECT 1+1;");
       await sequelize.close();
+      await this.logRepository.create({host:  splitCreds[0], message: "Проблем не обнаружено", type: LogType.info, date: Date.now()});
     } catch (error) {
 
       console.error('Ошибка мониторинга базы данных:', error);
