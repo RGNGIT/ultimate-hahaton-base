@@ -80,7 +80,14 @@ export class MonitoringService {
   }
 
   async fetchHostLogs(host) {
-    return await this.logRepository.findAll({ where: [{ host }] });
+    const logs = await this.logRepository.findAll({ where: [{ host }] });
+    let snapLogs = [];
+
+    for (let i = 0; i < 20; i++) {
+      snapLogs.push(logs[i]);
+    }
+
+    return snapLogs;
   }
 
   async getDatabasesReport(host, port, username, password) {
