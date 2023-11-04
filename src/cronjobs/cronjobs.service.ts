@@ -79,8 +79,14 @@ export class CronjobsService {
     } catch (error) {
 
       console.error('Ошибка мониторинга базы данных:', error);
-      await this.logRepository.create({host:  splitCreds[0], message: error.message, type: LogType.error, date: Date.now()});
-      await this.botService.sendTelegramMessage(`Ошибка в базе данных ${splitCreds[0]}. Хост не прошел HealthCheck.`, connection.user.telegram_chat_id);
+
+      let log = await this.logRepository.findOne({ where: { host:  splitCreds[0], message: error.message, date: Date.now()} });
+    
+      // Если пользователь существует, возвращаем его
+      // if (!log) {
+        await this.logRepository.create({host:  splitCreds[0], message: error.message.toString(), type: LogType.error, date: Date.now()});
+        await this.botService.sendTelegramMessage(`Ошибка в базе данных ${splitCreds[0]}. Хост не прошел HealthCheck.`, connection.user.telegram_chat_id);
+      //}
     }
   }
 

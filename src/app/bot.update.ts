@@ -75,10 +75,12 @@ export class BotUpdate {
     await ctx.reply("Привет! Чтобы посмотреть статус базы данных, переходи по кнопке", statusButton())
   }
 
-  // @On('file')
-  // async getFiles(@Message('file') message: string, @Ctx() ctx: Context){
+  @On('document')
+  async getFiles(@Message('document') message: string, @Ctx() ctx: Context){
+   // const fileId = ctx.message.document.file_id;
 
-  // }
+
+  }
 
 
   @On('voice')

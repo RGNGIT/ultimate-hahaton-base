@@ -36,7 +36,7 @@ export class MonitoringController {
 
     return database;
   }
-  // Все хосты юзера из таблицы connections
+  // Все хосты юзера из таблицы connectionshttps://176a-95-71-189-217.ngrok-free.app/api/monitoring/fullHostsDbList/592957413
   @ApiOperation({ summary: 'Все подключения пользователя' })
   @ApiResponse({ status: 200 })
   @Post('usersHosts/:tgId')
@@ -50,8 +50,8 @@ export class MonitoringController {
     @ApiOperation({ summary: 'Перезапуск бд' })
     @ApiResponse({ status: 200 })
     @Post('database/:tgId')
-    async reloadDB(@Param('tgId') tgId: string, @Body('name') name: string   ) {
-      const credStrings = await this.monitoringService.getPostgreCredsByName(name);
+    async reloadDB(@Param('tgId') tgId: string, @Body('host') host: string   ) {
+      const credStrings = await this.monitoringService.getPostgreCredsByHost(tgId, host);
 
       return  await this.monitoringService.restartPG(credStrings);
     }
