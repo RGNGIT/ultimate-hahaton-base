@@ -53,9 +53,9 @@ export class MonitoringController {
     async reloadDB(@Param('tgId') tgId: string, @Body('host') host: string   ) {
       const credStrings = await this.monitoringService.getPostgreCredsByHost(tgId, host);
 
-      return  await this.monitoringService.restartPG(credStrings);
-    }
-  
-  
+    return await this.monitoringService.restartPG(credStrings);
+  }
+
+
 
 } 
