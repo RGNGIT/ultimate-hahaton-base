@@ -47,7 +47,22 @@ export class ConnectionsService {
   }
 
   async update(id: number, dto: UpdateConnectionDto) {
-    const connectionString = dto.host + ';' + dto.port + ';' + dto.username + ';' + dto.password;
+    let oldValues = ((await this.connectionsRepository.findByPk(id)).connectionString).split(';');
+    let newValues = [dto.host, dto.port, dto.username, dto.password];
+
+    let connectionString = "";
+
+    for(let i = 0; i < 4; i++) {
+      if(newValues[i]) {
+        connectionString += newValues[i];
+      } else {
+        connectionString += oldValues[i];
+      }
+      if(i != 3) connectionString += ';';
+    }
+    
+    // const connectionString = dto.host ? dto.host : oldValues[0] + ';' + dto.port ? dto.port : oldValues[1] + ';' + dto.username ? dto.username : oldValues[2] + ';' + dto.password ? dto.password : oldValues[3];
+
     await this.connectionsRepository.update({ connectionString, ...dto }, { where: { id } });
     const connection = await this.connectionsRepository.findByPk(id);
     return connection;
