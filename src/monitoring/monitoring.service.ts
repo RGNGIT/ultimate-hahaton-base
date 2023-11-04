@@ -55,10 +55,20 @@ export class MonitoringService {
     }
   }
 
-  async getPostgreCredsByName(name: string): Promise<string> {
+  async getPostgreCredsByHost(tgId:string, myhost:string): Promise<string> {
     try {
-      const conn = await this.connectionsRepository.findOne({ where: { name } });
-      return conn.connectionString;
+
+      const user = await this.findUserByTgId(tgId);
+      const connects =  user.connectionStrings.map(cs => ({connectionString: cs.connectionString }));
+      
+      for (let item of  connects){
+        const { host, port, username, password } = this.splitCreds(item.connectionString);
+        if(host == myhost)
+        return item.connectionString;
+      }
+     
+      // const conn =  await this.connectionsRepository.findOne({where: {tgId}});
+     
     } catch {
       throw new HttpException('User seems to has no hosts', 404);
     }
