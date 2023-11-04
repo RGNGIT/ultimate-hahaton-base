@@ -7,6 +7,7 @@ import { User } from "src/user/entities/user.entity";
 import { Dialect, Sequelize } from "sequelize";
 import { Log } from "src/cronjobs/entities/log.entity";
 import { SshService } from "./ssh.service";
+import { SshCommandDto } from "./commands/ssh.commands.dto";
 
 @Injectable()
 export class MonitoringService {
@@ -189,37 +190,44 @@ export class MonitoringService {
   }
 
 
-  async executeCommand(credStrings, command: string, params) {
-    
-    const splitCreds = this.splitCreds(credStrings);
+  async executeCommand(host: string, port: number, username: string, password: string,  command: string, params?) {
 
     const sequelizeConfig = {
       dialect: 'postgres' as Dialect,
-      host: splitCreds.host,
-      port: Number(splitCreds.port),
-      username: splitCreds.username,
-      password: splitCreds.password,
+      host,
+      port,
+      username,
+      password,
       // database: database
     }
-    
-
+  
     const sequelize = new Sequelize(sequelizeConfig);
-    const result = await sequelize.query(`SELECT ${command}(${params})`);
+    const result = await sequelize.query(`SELECT ${command}`);
+    console.log(result)
     await sequelize.close();
     return result;
   }
 
 
-  async executeSsh(host, port, username, password){
+  async executeSsh(dto: SshCommandDto){
+    // const host = "194.113.233.98";
+    // const username = "root";
+    // const password = "6H6J6R9gL8PQ";
+    // const command = "uptime";
+
+    // {
+    //   "host": "194.113.233.98",
+    //   "username": "root",
+    //   "password": "6H6J6R9gL8PQ",
+    //   "command": "uptime"
+    // }
   try {
-      const output = await this.sshService.connectAndExecute(
-        `${host}:${port}`, username, password,
-        'sudo service postgresql restart'
-      );
-      return { message: 'Database restarted successfully', output: output };
+      const output = await this.sshService.connectAndExecute(dto.host, dto.username, dto.password, dto.command);
+      return { message: `Command ${dto.command} successfully executed`, output: output };
     } catch (error) {
+      console.log(error);
       // Handle error appropriately
-      return { error: error.message };
+      return { message: error };
     }
   }
 }

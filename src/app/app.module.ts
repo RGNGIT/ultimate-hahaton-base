@@ -13,9 +13,11 @@ import { MonitoringModule } from 'src/monitoring/monitoring.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronjobsModule } from 'src/cronjobs/cronjobs.module';
 import { BotService } from './bot.service';
-import { Scenes } from 'telegraf';
 import { ConnectionWizardScene } from './scenes/scene.wizard';
 import { MyScene } from './scenes/scene';
+import { SQLCommandScene } from './scenes/scene.command';
+import { CommandWizardScene } from './scenes/scene.wizard_command';
+import { SshService } from 'src/monitoring/ssh.service';
 
 
 
@@ -53,6 +55,6 @@ const sessions = new LocalSession({ database: 'session_db.json' })
     }),
     ScheduleModule.forRoot(),
   ],
-  providers: [AppService, BotUpdate, BotService, MyScene, ConnectionWizardScene],
+  providers: [AppService, BotUpdate, BotService, MyScene, ConnectionWizardScene, SQLCommandScene, CommandWizardScene, SshService],
 })
 export class AppModule { }
